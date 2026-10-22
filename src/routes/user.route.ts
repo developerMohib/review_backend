@@ -1,13 +1,26 @@
 import { Router } from "express";
 import { prisma } from "../db/prisma.js";
+import bcrypt from "bcryptjs";
 
 const router = Router();
 
+const safeUserSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  phone: true,
+  avatar: true,
+  bio: true,
+  isActive: true,
+  createdAt: true,
+  updatedAt: true,
+  mentorProfile: true,
+} as const;
+
 router.get("/", async (req, res) => {
   const users = await prisma.user.findMany({
-    include: {
-      mentorProfile: true,
-    },
+    select: safeUserSelect,
   });
 
   res.json({
@@ -19,9 +32,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const user = await prisma.user.findUnique({
     where: { id: req.params.id },
-    include: {
-      mentorProfile: true,
-    },
+    select: safeUserSelect,
   });
 
   if (!user) {
@@ -45,11 +56,12 @@ router.post("/", async (req, res) => {
     data: {
       name,
       email,
-      password,
+      password: await bcrypt.hash(password, 12),
       role,
       phone,
       bio,
     },
+    select: safeUserSelect,
   });
 
   res.status(201).json({
@@ -69,6 +81,7 @@ router.patch("/:id", async (req, res) => {
       bio,
       isActive,
     },
+    select: safeUserSelect,
   });
 
   res.json({

@@ -4,9 +4,26 @@ const app: Application = express();
 import cors from 'cors';
 import { userRoutes } from './routes/user.route.js';
 import { mentorRoutes } from './routes/mentor.routes.js';
+
+const allowedOrigins = new Set(
+  (process.env.CLIENT_URL ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+);
+
 // parsers
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin(origin, callback) {
+    if (process.env.NODE_ENV !== 'production' || !origin || allowedOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(null, false);
+  },
+}));
 
 // routes here
 
