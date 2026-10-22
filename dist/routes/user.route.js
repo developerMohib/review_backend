@@ -1,14 +1,29 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRoutes = void 0;
 const express_1 = require("express");
 const prisma_js_1 = require("../db/prisma.js");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const router = (0, express_1.Router)();
+const safeUserSelect = {
+    id: true,
+    name: true,
+    email: true,
+    role: true,
+    phone: true,
+    avatar: true,
+    bio: true,
+    isActive: true,
+    createdAt: true,
+    updatedAt: true,
+    mentorProfile: true,
+};
 router.get("/", async (req, res) => {
     const users = await prisma_js_1.prisma.user.findMany({
-        include: {
-            mentorProfile: true,
-        },
+        select: safeUserSelect,
     });
     res.json({
         success: true,
@@ -18,9 +33,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     const user = await prisma_js_1.prisma.user.findUnique({
         where: { id: req.params.id },
-        include: {
-            mentorProfile: true,
-        },
+        select: safeUserSelect,
     });
     if (!user) {
         res.status(404).json({
@@ -40,11 +53,12 @@ router.post("/", async (req, res) => {
         data: {
             name,
             email,
-            password,
+            password: await bcryptjs_1.default.hash(password, 12),
             role,
             phone,
             bio,
         },
+        select: safeUserSelect,
     });
     res.status(201).json({
         success: true,
@@ -61,6 +75,7 @@ router.patch("/:id", async (req, res) => {
             bio,
             isActive,
         },
+        select: safeUserSelect,
     });
     res.json({
         success: true,
