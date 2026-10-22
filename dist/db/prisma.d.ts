@@ -1,6 +1,2 @@
-import { PrismaClient } from './generated/prisma/client.js';
-import { PrismaNeon } from '@prisma/adapter-neon';
-export declare const prisma: PrismaClient<{
-    adapter: PrismaNeon;
-}, never, import("./generated/prisma/runtime/client.js").DefaultArgs>;
+export declare const prisma: import("./generated/prisma/internal/class.js").PrismaClient<never, import("./generated/prisma/internal/prismaNamespace.js").GlobalOmitConfig | undefined, import("@prisma/client/runtime/client.js").DefaultArgs>;
 //# sourceMappingURL=prisma.d.ts.map

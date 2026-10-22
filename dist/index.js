@@ -1,11 +1,16 @@
-import express from 'express';
-const app = express();
-import cors from 'cors';
-import { userRoutes } from './routes/user.route.js';
-import { mentorRoutes } from './routes/mentor.routes.js';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const app = (0, express_1.default)();
+const cors_1 = __importDefault(require("cors"));
+const user_route_js_1 = require("./routes/user.route.js");
+const mentor_routes_js_1 = require("./routes/mentor.routes.js");
 // parsers
-app.use(express.json());
-app.use(cors());
+app.use(express_1.default.json());
+app.use((0, cors_1.default)());
 // routes here
 // middle wares
 app.get("/", (req, res) => {
@@ -15,8 +20,8 @@ app.get("/", (req, res) => {
     });
 });
 // api 
-app.use("/api/users", userRoutes);
-app.use("/api/mentors", mentorRoutes);
+app.use("/api/users", user_route_js_1.userRoutes);
+app.use("/api/mentors", mentor_routes_js_1.mentorRoutes);
 app.get('/health', (req, res) => {
     res.send('Mentor Practice server!');
 });
@@ -36,5 +41,5 @@ app.use((error, req, res, next) => {
     }
     next();
 });
-export default app;
+exports.default = app;
 //# sourceMappingURL=index.js.map

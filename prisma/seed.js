@@ -1,18 +1,23 @@
-import dotenv from "dotenv";
-import { Role, MentorStatus } from "../src/generated/prisma";
-import { PrismaClient } from "../src/generated/prisma/client.js";
-import { PrismaNeon } from "@prisma/adapter-neon";
-dotenv.config();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = __importDefault(require("dotenv"));
+const prisma_1 = require("../src/db/generated/prisma");
+const prisma_2 = require("../src/db/generated/prisma");
+const adapter_neon_1 = require("@prisma/adapter-neon");
+dotenv_1.default.config();
 let connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-    dotenv.config({ override: true });
+    dotenv_1.default.config({ override: true });
     connectionString = process.env["DATABASE_URL"];
 }
 if (!connectionString) {
     throw new Error("DATABASE_URL is missing. Please check your .env file and try again.");
 }
-const adapter = new PrismaNeon({ connectionString });
-const prisma = new PrismaClient({ adapter });
+const adapter = new adapter_neon_1.PrismaNeon({ connectionString });
+const prisma = new prisma_2.PrismaClient({ adapter });
 async function main() {
     console.log("Seeding started...");
     // Delete existing seed data.
@@ -26,7 +31,7 @@ async function main() {
                 name: "Nurjahan Sir",
                 email: "nurjahan@example.com",
                 password: "hashed_password_123",
-                role: Role.MENTOR,
+                role: prisma_1.Role.MENTOR,
                 phone: "+8801700000001",
                 bio: "Senior software engineer and mentor",
             },
@@ -36,7 +41,7 @@ async function main() {
                 name: "Rahim Uddin",
                 email: "rahim@example.com",
                 password: "hashed_password_123",
-                role: Role.STUDENT,
+                role: prisma_1.Role.STUDENT,
                 phone: "+8801700000002",
             },
         }),
@@ -45,7 +50,7 @@ async function main() {
                 name: "Karim Ahmed",
                 email: "karim@example.com",
                 password: "hashed_password_123",
-                role: Role.MENTOR,
+                role: prisma_1.Role.MENTOR,
                 phone: "+8801700000003",
                 bio: "Full-stack developer and career mentor",
             },
@@ -59,7 +64,7 @@ async function main() {
             experience: 6,
             hourlyRate: 25,
             availability: "Saturday to Wednesday, 7 PM - 10 PM",
-            status: MentorStatus.APPROVED,
+            status: prisma_1.MentorStatus.APPROVED,
             rating: 4.8,
             totalSessions: 120,
         },
@@ -71,7 +76,7 @@ async function main() {
             experience: 4,
             hourlyRate: 20,
             availability: "Friday and Saturday, 10 AM - 1 PM",
-            status: MentorStatus.PENDING,
+            status: prisma_1.MentorStatus.PENDING,
             rating: 4.5,
             totalSessions: 45,
         },

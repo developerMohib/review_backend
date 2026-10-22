@@ -1,8 +1,11 @@
-import { Router } from "express";
-import { prisma } from "../db/prisma.js";
-const router = Router();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.userRoutes = void 0;
+const express_1 = require("express");
+const prisma_js_1 = require("../db/prisma.js");
+const router = (0, express_1.Router)();
 router.get("/", async (req, res) => {
-    const users = await prisma.user.findMany({
+    const users = await prisma_js_1.prisma.user.findMany({
         include: {
             mentorProfile: true,
         },
@@ -13,7 +16,7 @@ router.get("/", async (req, res) => {
     });
 });
 router.get("/:id", async (req, res) => {
-    const user = await prisma.user.findUnique({
+    const user = await prisma_js_1.prisma.user.findUnique({
         where: { id: req.params.id },
         include: {
             mentorProfile: true,
@@ -33,7 +36,7 @@ router.get("/:id", async (req, res) => {
 });
 router.post("/", async (req, res) => {
     const { name, email, password, role, phone, bio } = req.body;
-    const user = await prisma.user.create({
+    const user = await prisma_js_1.prisma.user.create({
         data: {
             name,
             email,
@@ -50,7 +53,7 @@ router.post("/", async (req, res) => {
 });
 router.patch("/:id", async (req, res) => {
     const { name, phone, bio, isActive } = req.body;
-    const user = await prisma.user.update({
+    const user = await prisma_js_1.prisma.user.update({
         where: { id: req.params.id },
         data: {
             name,
@@ -65,7 +68,7 @@ router.patch("/:id", async (req, res) => {
     });
 });
 router.delete("/:id", async (req, res) => {
-    await prisma.user.delete({
+    await prisma_js_1.prisma.user.delete({
         where: { id: req.params.id },
     });
     res.json({
@@ -73,5 +76,5 @@ router.delete("/:id", async (req, res) => {
         message: "User deleted successfully",
     });
 });
-export const userRoutes = router;
+exports.userRoutes = router;
 //# sourceMappingURL=user.route.js.map

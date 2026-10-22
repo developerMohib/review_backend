@@ -1,8 +1,11 @@
-import { Router } from "express";
-import { prisma } from "../db/prisma.js";
-const router = Router();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mentorRoutes = void 0;
+const express_1 = require("express");
+const prisma_js_1 = require("../db/prisma.js");
+const router = (0, express_1.Router)();
 router.get("/", async (req, res) => {
-    const mentors = await prisma.mentor.findMany({
+    const mentors = await prisma_js_1.prisma.mentor.findMany({
         include: {
             user: {
                 select: {
@@ -22,7 +25,7 @@ router.get("/", async (req, res) => {
 });
 router.post("/", async (req, res) => {
     const { userId, expertise, experience, hourlyRate, availability } = req.body;
-    const mentor = await prisma.mentor.create({
+    const mentor = await prisma_js_1.prisma.mentor.create({
         data: {
             userId,
             expertise,
@@ -38,7 +41,7 @@ router.post("/", async (req, res) => {
 });
 router.patch("/:id", async (req, res) => {
     const { expertise, experience, hourlyRate, availability, status } = req.body;
-    const mentor = await prisma.mentor.update({
+    const mentor = await prisma_js_1.prisma.mentor.update({
         where: { id: req.params.id },
         data: {
             expertise,
@@ -54,7 +57,7 @@ router.patch("/:id", async (req, res) => {
     });
 });
 router.delete("/:id", async (req, res) => {
-    await prisma.mentor.delete({
+    await prisma_js_1.prisma.mentor.delete({
         where: { id: req.params.id },
     });
     res.json({
@@ -62,5 +65,5 @@ router.delete("/:id", async (req, res) => {
         message: "Mentor deleted successfully",
     });
 });
-export const mentorRoutes = router;
+exports.mentorRoutes = router;
 //# sourceMappingURL=mentor.routes.js.map

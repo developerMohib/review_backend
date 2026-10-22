@@ -1,10 +1,15 @@
-import app from "./index.js";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const index_js_1 = __importDefault(require("./index.js"));
 const port = 4000;
 async function main() {
     try {
         console.log('PostgreSQL connected succesfully with Atlas');
-        app.listen(port, () => {
-            console.log(`Example app listening on port ${port}`);
+        index_js_1.default.listen(port, () => {
+            console.log(`Admin app listening on port ${port}`);
         });
     }
     catch (error) {

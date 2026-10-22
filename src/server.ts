@@ -5,7 +5,7 @@ async function main() {
   try {
     console.log('PostgreSQL connected succesfully with Atlas');
     app.listen(port, () => {
-      console.log(`Example app listening on port ${port}`);
+      console.log(`Admin app listening on port ${port}`);
     });
   } catch (error) {
     console.error('Database connection failed:', error);

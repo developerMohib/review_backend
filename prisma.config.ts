@@ -3,6 +3,7 @@ dotenv.config();
 import { defineConfig } from "prisma/config";
 
 let databaseUrl = process.env["DATABASE_URL"];
+
 if (!databaseUrl) {
   dotenv.config({ override: true });
   databaseUrl = process.env["DATABASE_URL"];
