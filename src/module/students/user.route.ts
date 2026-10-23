@@ -1,16 +1,17 @@
 import { Router } from "express";
 import {
-  deleteExistUser,
-  getOneUser,
-  getTotalUsers,
-  updateExistUser,
-} from "./user.controller";
-
+  getAllUsersController,
+  getUserByIdController,
+  updateUserController,
+  deleteUserController,
+} from "./user.controller.js";
 const router = Router();
 
-router.get("/", getTotalUsers);
-router.get("/:id", getOneUser);
-router.patch("/:id", updateExistUser);
-router.delete("/:id", deleteExistUser);
+router.get("/", getAllUsersController);
 
+router.get("/:id", getUserByIdController);
+
+router.patch("/:id", updateUserController);
+
+router.delete("/:id", deleteUserController);
 export const userRoutes = router;

@@ -3,57 +3,47 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "../../db/prisma.js";
 import { AppError } from "../../utils/AppError.js";
-import { CreateUserInput } from "./auth.validators.js";
-import { handlePrismaError } from "../../utils/handleCustomPrismaErr.js";
+import { RegisterInput } from "./auth.validators.js";
 
-export const createStudentService = async (input: CreateUserInput) => {
+export const registerService = async (input: RegisterInput) => {
   const hashedPassword = await bcrypt.hash(input.password, 10);
 
-  try {
-    const newUser = await prisma.user.create({
-      data: {
-        name: input.name,
-        email: input.email.toLowerCase().trim(),
-        password: hashedPassword,
-        role: input.role || "STUDENT",
-        isActive: input.isActive !== undefined ? input.isActive : true,
-        phone: input.phone || null,
-        avatar: input.avatar || null,
-        bio: input.bio || null,
-      },
-      omit: {
-        password: true,
-      },
-    });
+  return prisma.user.create({
+    data: {
+      name: input.name.trim(),
+      email: input.email.toLowerCase().trim(),
+      password: hashedPassword,
 
-    return newUser;
-  } catch (error: any) {
-    return handlePrismaError(error);
-  }
+      // Public signup defaults are controlled by the backend.
+      role: "STUDENT",
+      isActive: true,
+      phone: null,
+      avatar: null,
+      bio: null,
+    },
+
+    omit: {
+      password: true,
+    },
+  });
 };
 
 export const loginService = async (email: string, password: string) => {
-  const user = await prisma.user.findUnique({
+ const user = await prisma.user.findUnique({
     where: { email: email.toLowerCase().trim() },
   });
 
-  if (!user) {
+  if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new AppError("Invalid email or password", 401);
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    throw new AppError("Invalid email or password", 401);
-  }
-
-  // inactive user hole "not found" dibe
   if (!user.isActive) {
-    throw new AppError("User not found", 404);
+    throw new AppError("Your account is inactive. Please contact support.", 403);
   }
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    throw new Error("JWT_SECRET is not set");
+    throw new AppError("JWT_SECRET is not configured", 500);
   }
 
   const token = jwt.sign({ id: user.id, role: user.role }, secret, {

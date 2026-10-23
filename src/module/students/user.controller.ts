@@ -1,100 +1,80 @@
 import type { Request, Response } from "express";
+
+import { AppError } from "../../utils/AppError.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+
 import {
-  deleteUser,
-  getAllUsers,
-  getUserById,
-  updateUser,
-} from "./user.service";
-import { ZodError } from "zod";
+  deleteUserService,
+  getAllUsersService,
+  getUserByIdService,
+  updateUserService,
+} from "./user.service.js";
+import { updateUserSchema } from "./user.validator.js";
 
-export const getTotalUsers = async (req: Request, res: Response) => {
-  try {
-     // jara only active status bohon kore
-    const users = await getAllUsers();
-    res.json({ success: true, data: users });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      const errors = error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-      }));
+// import { updateUserSchema } from "./user.validator.js";
 
-      return res.status(400).json({
-        success: false,
-        message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
-        errors,
-      });
-    }
+// Shared route-parameter check.
+const getUserId = (req: Request): string => {
+  const id = req.params.id;
+
+  if (typeof id !== "string" || !id.trim()) {
+    throw new AppError("User id is required", 400);
   }
+
+  return id.trim();
 };
 
-export const getOneUser = async (req: Request, res: Response) => {
-  try {
-    // jara only active status bohon kore nahoy no user
-    const user = await getUserById(req.params.id as string);
-    // pahadar bosate hobe
-    res.json({ success: true, data: user });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      const errors = error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-      }));
+export const getAllUsersController = asyncHandler(
+  async (_req: Request, res: Response): Promise<void> => {
+    const users = await getAllUsersService();
 
-      return res.status(400).json({
-        success: false,
-        message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
-        errors,
-      });
-    }
-  }
-};
-
-export const updateExistUser = async (req: Request, res: Response) => {
-  try {
-    const { name, phone, avatar, bio, isActive } = req.body;
-    const user = await updateUser(req.params.id as string, {
-      name,
-      phone,
-      avatar,
-      bio,
-      isActive,
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
     });
+  },
+);
 
-    res.json({ success: true, data: user });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      const errors = error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-      }));
+export const getUserByIdController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getUserId(req);
 
-      return res.status(400).json({
-        success: false,
-        message: errors[0]?.message ?? "Validation failed",
-        errors,
-      });
-    }
-  }
-};
+    const user = await getUserByIdService(id);
 
-export const deleteExistUser = async (req: Request, res: Response) => {
-  try {
-    //status inactive kore dite hobe
-    await deleteUser(req.params.id as string);
-    res.json({ success: true, message: "User deleted successfully" });
-  } catch (error: any) {
-    if (error instanceof ZodError) {
-      const errors = error.issues.map((issue) => ({
-        field: issue.path.join("."),
-        message: issue.message,
-      }));
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: user,
+    });
+  },
+);
 
-      return res.status(400).json({
-        success: false,
-        message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
-        errors,
-      });
-    }
-  }
-};
+export const updateUserController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getUserId(req);
+
+    const validatedInput = updateUserSchema.parse(req.body);
+
+    const user = await updateUserService(id, validatedInput);
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: user,
+    });
+  },
+);
+
+export const deleteUserController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getUserId(req);
+
+    await deleteUserService(id);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  },
+);

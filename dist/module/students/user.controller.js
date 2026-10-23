@@ -1,97 +1,52 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteExistUser = exports.updateExistUser = exports.getOneUser = exports.getTotalUsers = void 0;
-const user_service_1 = require("./user.service");
-const zod_1 = require("zod");
-const getTotalUsers = async (req, res) => {
-    try {
-        // jara only active status bohon kore
-        const users = await (0, user_service_1.getAllUsers)();
-        res.json({ success: true, data: users });
+exports.deleteUserController = exports.updateUserController = exports.getUserByIdController = exports.getAllUsersController = void 0;
+const AppError_js_1 = require("../../utils/AppError.js");
+const asyncHandler_js_1 = require("../../utils/asyncHandler.js");
+const user_service_js_1 = require("./user.service.js");
+const user_validator_js_1 = require("./user.validator.js");
+// import { updateUserSchema } from "./user.validator.js";
+// Shared route-parameter check.
+const getUserId = (req) => {
+    const id = req.params.id;
+    if (typeof id !== "string" || !id.trim()) {
+        throw new AppError_js_1.AppError("User id is required", 400);
     }
-    catch (error) {
-        if (error instanceof zod_1.ZodError) {
-            const errors = error.issues.map((issue) => ({
-                field: issue.path.join("."),
-                message: issue.message,
-            }));
-            return res.status(400).json({
-                success: false,
-                message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
-                errors,
-            });
-        }
-    }
+    return id.trim();
 };
-exports.getTotalUsers = getTotalUsers;
-const getOneUser = async (req, res) => {
-    try {
-        // jara only active status bohon kore nahoy no user
-        const user = await (0, user_service_1.getUserById)(req.params.id);
-        // pahadar bosate hobe
-        res.json({ success: true, data: user });
-    }
-    catch (error) {
-        if (error instanceof zod_1.ZodError) {
-            const errors = error.issues.map((issue) => ({
-                field: issue.path.join("."),
-                message: issue.message,
-            }));
-            return res.status(400).json({
-                success: false,
-                message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
-                errors,
-            });
-        }
-    }
-};
-exports.getOneUser = getOneUser;
-const updateExistUser = async (req, res) => {
-    try {
-        const { name, phone, avatar, bio, isActive } = req.body;
-        const user = await (0, user_service_1.updateUser)(req.params.id, {
-            name,
-            phone,
-            avatar,
-            bio,
-            isActive,
-        });
-        res.json({ success: true, data: user });
-    }
-    catch (error) {
-        if (error instanceof zod_1.ZodError) {
-            const errors = error.issues.map((issue) => ({
-                field: issue.path.join("."),
-                message: issue.message,
-            }));
-            return res.status(400).json({
-                success: false,
-                message: errors[0]?.message ?? "Validation failed",
-                errors,
-            });
-        }
-    }
-};
-exports.updateExistUser = updateExistUser;
-const deleteExistUser = async (req, res) => {
-    try {
-        //status inactive kore dite hobe
-        await (0, user_service_1.deleteUser)(req.params.id);
-        res.json({ success: true, message: "User deleted successfully" });
-    }
-    catch (error) {
-        if (error instanceof zod_1.ZodError) {
-            const errors = error.issues.map((issue) => ({
-                field: issue.path.join("."),
-                message: issue.message,
-            }));
-            return res.status(400).json({
-                success: false,
-                message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
-                errors,
-            });
-        }
-    }
-};
-exports.deleteExistUser = deleteExistUser;
+exports.getAllUsersController = (0, asyncHandler_js_1.asyncHandler)(async (_req, res) => {
+    const users = await (0, user_service_js_1.getAllUsersService)();
+    res.status(200).json({
+        success: true,
+        message: "Users fetched successfully",
+        data: users,
+    });
+});
+exports.getUserByIdController = (0, asyncHandler_js_1.asyncHandler)(async (req, res) => {
+    const id = getUserId(req);
+    const user = await (0, user_service_js_1.getUserByIdService)(id);
+    res.status(200).json({
+        success: true,
+        message: "User fetched successfully",
+        data: user,
+    });
+});
+exports.updateUserController = (0, asyncHandler_js_1.asyncHandler)(async (req, res) => {
+    const id = getUserId(req);
+    const validatedInput = user_validator_js_1.updateUserSchema.parse(req.body);
+    const user = await (0, user_service_js_1.updateUserService)(id, validatedInput);
+    res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+        data: user,
+    });
+});
+exports.deleteUserController = (0, asyncHandler_js_1.asyncHandler)(async (req, res) => {
+    const id = getUserId(req);
+    await (0, user_service_js_1.deleteUserService)(id);
+    res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+    });
+});
 //# sourceMappingURL=user.controller.js.map

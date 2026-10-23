@@ -31,7 +31,7 @@ const globalErrHandler = (error, req, res, _next) => {
     // 3. Prisma
     if (error instanceof client_js_1.Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
-            res.status(409).json({ success: false, message: "Already exists" });
+            res.status(409).json({ success: false, message: "Accout already exists" });
             return;
         }
         if (error.code === "P2025") {
