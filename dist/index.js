@@ -12,15 +12,17 @@ const morgan_1 = __importDefault(require("morgan"));
 const express_rate_limit_1 = require("express-rate-limit");
 const mentor_routes_js_1 = require("./module/mentors/mentor.routes.js");
 const user_route_js_1 = require("./module/students/user.route.js");
+const globalErrHandler_js_1 = require("./utils/globalErrHandler.js");
+const auth_routes_js_1 = require("./module/auth/auth.routes.js");
 const app = (0, express_1.default)();
-const isProduction = process.env.NODE_ENV === 'production';
-const allowedOrigins = new Set((process.env.CLIENT_URL ?? '')
-    .split(',')
+const isProduction = process.env.NODE_ENV === "production";
+const allowedOrigins = new Set((process.env.CLIENT_URL ?? "")
+    .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean));
 // ---------- Security & logging ----------
 app.use((0, helmet_1.default)());
-app.use((0, morgan_1.default)(isProduction ? 'combined' : 'dev'));
+app.use((0, morgan_1.default)(isProduction ? "combined" : "dev"));
 app.use((0, compression_1.default)());
 app.use((0, cors_1.default)({
     origin(origin, callback) {
@@ -36,19 +38,22 @@ app.use((0, cors_1.default)({
 const apiLimiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 15 * 60 * 1000, // 15 minute
     limit: 300, // per IP
-    standardHeaders: 'draft-7',
+    standardHeaders: "draft-7",
     legacyHeaders: false,
-    message: { success: false, message: 'Too many requests, please try again later.' },
+    message: {
+        success: false,
+        message: "Too many requests, please try again later.",
+    },
 });
 // ---------- Parsers ----------
-app.use(express_1.default.json({ limit: '1mb' }));
+app.use(express_1.default.json({ limit: "1mb" }));
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)());
 // ---------- Health routes ----------
-app.get('/', (req, res) => {
-    res.json({ success: true, message: 'Mentor API is running' });
+app.get("/", (req, res) => {
+    res.json({ success: true, message: "Mentor API is running" });
 });
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
     res.status(200).json({
         success: true,
         uptime: process.uptime(),
@@ -56,9 +61,10 @@ app.get('/health', (req, res) => {
     });
 });
 // ---------- API routes ----------
-app.use('/api', apiLimiter);
-app.use('/api/users', user_route_js_1.userRoutes);
-app.use('/api/mentors', mentor_routes_js_1.mentorRoutes);
+app.use("/api", apiLimiter);
+app.use("/api/auth", auth_routes_js_1.authRoutes);
+app.use("/api/users", user_route_js_1.userRoutes);
+app.use("/api/mentors", mentor_routes_js_1.mentorRoutes);
 // ---------- 404 handler ----------
 app.use((req, res) => {
     res.status(404).json({
@@ -67,16 +73,6 @@ app.use((req, res) => {
     });
 });
 // ---------- Global error handler ----------
-app.use((error, req, res, _next) => {
-    console.error(error);
-    const message = error instanceof Error ? error.message : 'Something went wrong';
-    const status = typeof error === 'object' && error !== null && 'status' in error && typeof error.status === 'number'
-        ? error.status
-        : 500;
-    res.status(status).json({
-        success: false,
-        message: isProduction && status === 500 ? 'Internal server error' : message,
-    });
-});
+app.use(globalErrHandler_js_1.globalErrHandler);
 exports.default = app;
 //# sourceMappingURL=index.js.map

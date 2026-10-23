@@ -1,25 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserById = exports.getAllUsers = void 0;
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const client_1 = require("../../db/generated/prisma/client");
-const AppError_1 = require("../../utils/AppError");
+exports.deleteUser = exports.updateUser = exports.getUserById = exports.getAllUsers = void 0;
 const prisma_1 = require("../../db/prisma");
-// Prisma error ke readable AppError e convert kore
-const handlePrismaError = (error) => {
-    if (error instanceof client_1.Prisma.PrismaClientKnownRequestError) {
-        if (error.code === "P2002") {
-            throw new AppError_1.AppError("Email already exists", 409);
-        }
-        if (error.code === "P2025") {
-            throw new AppError_1.AppError("User not found", 404);
-        }
-    }
-    throw error;
-};
+const handleCustomPrismaErr_1 = require("../../utils/handleCustomPrismaErr");
 const getAllUsers = () => {
     return prisma_1.prisma.user.findMany({
         omit: { password: true },
@@ -36,27 +19,6 @@ const getUserById = (id) => {
     });
 };
 exports.getUserById = getUserById;
-const createUser = async (input) => {
-    const hashedPassword = await bcryptjs_1.default.hash(input.password, 10);
-    try {
-        return await prisma_1.prisma.user.create({
-            data: {
-                name: input.name,
-                email: input.email.toLowerCase().trim(),
-                password: hashedPassword,
-                ...(input.role && { role: input.role }),
-                ...(input.phone !== undefined && { phone: input.phone }),
-                ...(input.avatar !== undefined && { avatar: input.avatar }),
-                ...(input.bio !== undefined && { bio: input.bio }),
-            },
-            omit: { password: true },
-        });
-    }
-    catch (error) {
-        return handlePrismaError(error);
-    }
-};
-exports.createUser = createUser;
 const updateUser = async (id, input) => {
     try {
         return await prisma_1.prisma.user.update({
@@ -73,7 +35,7 @@ const updateUser = async (id, input) => {
         });
     }
     catch (error) {
-        return handlePrismaError(error);
+        return (0, handleCustomPrismaErr_1.handlePrismaError)(error);
     }
 };
 exports.updateUser = updateUser;
@@ -83,7 +45,7 @@ const deleteUser = async (id) => {
         await prisma_1.prisma.user.delete({ where: { id } });
     }
     catch (error) {
-        handlePrismaError(error);
+        (0, handleCustomPrismaErr_1.handlePrismaError)(error);
     }
 };
 exports.deleteUser = deleteUser;

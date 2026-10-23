@@ -1,57 +1,100 @@
 import type { Request, Response } from "express";
-import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from "./user.service";
-import { AppError } from "../../utils/AppError";
+import {
+  deleteUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+} from "./user.service";
+import { ZodError } from "zod";
 
 export const getTotalUsers = async (req: Request, res: Response) => {
-  const users = await getAllUsers();
-  res.json({ success: true, data: users });
+  try {
+     // jara only active status bohon kore
+    const users = await getAllUsers();
+    res.json({ success: true, data: users });
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      const errors = error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
+        errors,
+      });
+    }
+  }
 };
 
 export const getOneUser = async (req: Request, res: Response) => {
-  const user = await getUserById(req.params.id as string);
+  try {
+    // jara only active status bohon kore nahoy no user
+    const user = await getUserById(req.params.id as string);
+    // pahadar bosate hobe
+    res.json({ success: true, data: user });
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      const errors = error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
 
-  if (!user) {
-    throw new AppError("User not found", 404);
+      return res.status(400).json({
+        success: false,
+        message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
+        errors,
+      });
+    }
   }
-
-  res.json({ success: true, data: user });
-};
-
-export const createNewUser = async (req: Request, res: Response) => {
-  const { name, email, password, phone, avatar, bio } = req.body;
-
-  if (!name || !email || !password) {
-    throw new AppError("name, email and password are required", 400);
-  }
-
-  // role body theke neya hocche na: sobai STUDENT hishebe shuru hobe
-  const user = await createUser({
-    name,
-    email,
-    password,
-    phone,
-    avatar,
-    bio,
-  });
-
-  res.status(201).json({ success: true, data: user });
 };
 
 export const updateExistUser = async (req: Request, res: Response) => {
-  const { name, phone, avatar, bio, isActive } = req.body;
+  try {
+    const { name, phone, avatar, bio, isActive } = req.body;
+    const user = await updateUser(req.params.id as string, {
+      name,
+      phone,
+      avatar,
+      bio,
+      isActive,
+    });
 
-  const user = await updateUser(req.params.id as string, {
-    name,
-    phone,
-    avatar,
-    bio,
-    isActive,
-  });
+    res.json({ success: true, data: user });
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      const errors = error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
 
-  res.json({ success: true, data: user });
+      return res.status(400).json({
+        success: false,
+        message: errors[0]?.message ?? "Validation failed",
+        errors,
+      });
+    }
+  }
 };
 
 export const deleteExistUser = async (req: Request, res: Response) => {
-  await deleteUser(req.params.id as string);
-  res.json({ success: true, message: "User deleted successfully" });
+  try {
+    //status inactive kore dite hobe
+    await deleteUser(req.params.id as string);
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (error: any) {
+    if (error instanceof ZodError) {
+      const errors = error.issues.map((issue) => ({
+        field: issue.path.join("."),
+        message: issue.message,
+      }));
+
+      return res.status(400).json({
+        success: false,
+        message: errors[0]?.message ?? "Validation failed", // prothom error ta main message
+        errors,
+      });
+    }
+  }
 };

@@ -1,39 +1,8 @@
-import bcrypt from "bcryptjs";
-import { Role } from "../../db/generated/prisma/enums";
-import { Prisma } from "../../db/generated/prisma/client";
-import { AppError } from "../../utils/AppError";
+
 import { prisma } from "../../db/prisma";
+import { handlePrismaError } from "../../utils/handleCustomPrismaErr";
+import { UpdateUserInput } from "./user.validator";
 
-export interface CreateUserInput {
-  name: string;
-  email: string;
-  password: string;
-  role?: Role | undefined;
-  phone?: string | undefined;
-  avatar?: string | undefined;
-  bio?: string | undefined;
-}
-
-export interface UpdateUserInput {
-  name?: string | undefined;
-  phone?: string | undefined;
-  avatar?: string | undefined;
-  bio?: string | undefined;
-  isActive?: boolean | undefined;
-}
-
-// Prisma error ke readable AppError e convert kore
-const handlePrismaError = (error: unknown): never => {
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2002") {
-      throw new AppError("Email already exists", 409);
-    }
-    if (error.code === "P2025") {
-      throw new AppError("User not found", 404);
-    }
-  }
-  throw error;
-};
 
 export const getAllUsers = () => {
   return prisma.user.findMany({
@@ -51,26 +20,6 @@ export const getUserById = (id: string) => {
   });
 };
 
-export const createUser = async (input: CreateUserInput) => {
-  const hashedPassword = await bcrypt.hash(input.password, 10);
-
-  try {
-    return await prisma.user.create({
-      data: {
-        name: input.name,
-        email: input.email.toLowerCase().trim(),
-        password: hashedPassword,
-        ...(input.role && { role: input.role }),
-        ...(input.phone !== undefined && { phone: input.phone }),
-        ...(input.avatar !== undefined && { avatar: input.avatar }),
-        ...(input.bio !== undefined && { bio: input.bio }),
-      },
-      omit: { password: true },
-    });
-  } catch (error) {
-    return handlePrismaError(error);
-  }
-};
 
 export const updateUser = async (id: string, input: UpdateUserInput) => {
   try {

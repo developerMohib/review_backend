@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/", getMentors);
 router.get("/:id", getMentor);
-router.post("/", createMentor);
+router.post("/", createMentor); /// will be role update so, it from user
 router.patch("/:id", updateMentor);
 router.delete("/:id", deleteMentor);
 
