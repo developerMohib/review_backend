@@ -6,8 +6,8 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import morgan from 'morgan';
 import { rateLimit } from 'express-rate-limit';
-import { userRoutes } from './routes/user.route.js';
-import { mentorRoutes } from './routes/mentor.routes.js';
+import { mentorRoutes } from './module/mentors/mentor.routes.js';
+import { userRoutes } from './module/students/user.route.js';
 
 const app: Application = express();
 
