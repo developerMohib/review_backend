@@ -1,12 +1,17 @@
 import { Router } from "express";
-import { createMentor, deleteMentor, getMentor, getMentors, updateMentor } from "./mentor.controller";
-
+import {
+  getAllMentorsController,
+  getMentorByIdController,
+  createMentorController,
+  updateMentorController,
+  deleteMentorController,
+} from "./mentor.controller.js";
 const router = Router();
 
-router.get("/", getMentors);
-router.get("/:id", getMentor);
-router.post("/", createMentor);
-router.patch("/:id", updateMentor);
-router.delete("/:id", deleteMentor);
+router.get("/", getAllMentorsController);
+router.get("/:id", getMentorByIdController);
+router.post("/", createMentorController); /// will be role update so, it from user
+router.patch("/:id", updateMentorController);
+router.delete("/:id", deleteMentorController);
 
 export const mentorRoutes = router;

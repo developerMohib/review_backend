@@ -1,53 +1,52 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteExistUser = exports.updateExistUser = exports.createNewUser = exports.getOneUser = exports.getTotalUsers = void 0;
-const user_service_1 = require("./user.service");
-const AppError_1 = require("../../utils/AppError");
-const getTotalUsers = async (req, res) => {
-    const users = await (0, user_service_1.getAllUsers)();
-    res.json({ success: true, data: users });
-};
-exports.getTotalUsers = getTotalUsers;
-const getOneUser = async (req, res) => {
-    const user = await (0, user_service_1.getUserById)(req.params.id);
-    if (!user) {
-        throw new AppError_1.AppError("User not found", 404);
+exports.deleteUserController = exports.updateUserController = exports.getUserByIdController = exports.getAllUsersController = void 0;
+const AppError_js_1 = require("../../utils/AppError.js");
+const asyncHandler_js_1 = require("../../utils/asyncHandler.js");
+const user_service_js_1 = require("./user.service.js");
+const user_validator_js_1 = require("./user.validator.js");
+// import { updateUserSchema } from "./user.validator.js";
+// Shared route-parameter check.
+const getUserId = (req) => {
+    const id = req.params.id;
+    if (typeof id !== "string" || !id.trim()) {
+        throw new AppError_js_1.AppError("User id is required", 400);
     }
-    res.json({ success: true, data: user });
+    return id.trim();
 };
-exports.getOneUser = getOneUser;
-const createNewUser = async (req, res) => {
-    const { name, email, password, phone, avatar, bio } = req.body;
-    if (!name || !email || !password) {
-        throw new AppError_1.AppError("name, email and password are required", 400);
-    }
-    // role body theke neya hocche na: sobai STUDENT hishebe shuru hobe
-    const user = await (0, user_service_1.createUser)({
-        name,
-        email,
-        password,
-        phone,
-        avatar,
-        bio,
+exports.getAllUsersController = (0, asyncHandler_js_1.asyncHandler)(async (_req, res) => {
+    const users = await (0, user_service_js_1.getAllUsersService)();
+    res.status(200).json({
+        success: true,
+        message: "Users fetched successfully",
+        data: users,
     });
-    res.status(201).json({ success: true, data: user });
-};
-exports.createNewUser = createNewUser;
-const updateExistUser = async (req, res) => {
-    const { name, phone, avatar, bio, isActive } = req.body;
-    const user = await (0, user_service_1.updateUser)(req.params.id, {
-        name,
-        phone,
-        avatar,
-        bio,
-        isActive,
+});
+exports.getUserByIdController = (0, asyncHandler_js_1.asyncHandler)(async (req, res) => {
+    const id = getUserId(req);
+    const user = await (0, user_service_js_1.getUserByIdService)(id);
+    res.status(200).json({
+        success: true,
+        message: "User fetched successfully",
+        data: user,
     });
-    res.json({ success: true, data: user });
-};
-exports.updateExistUser = updateExistUser;
-const deleteExistUser = async (req, res) => {
-    await (0, user_service_1.deleteUser)(req.params.id);
-    res.json({ success: true, message: "User deleted successfully" });
-};
-exports.deleteExistUser = deleteExistUser;
+});
+exports.updateUserController = (0, asyncHandler_js_1.asyncHandler)(async (req, res) => {
+    const id = getUserId(req);
+    const validatedInput = user_validator_js_1.updateUserSchema.parse(req.body);
+    const user = await (0, user_service_js_1.updateUserService)(id, validatedInput);
+    res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+        data: user,
+    });
+});
+exports.deleteUserController = (0, asyncHandler_js_1.asyncHandler)(async (req, res) => {
+    const id = getUserId(req);
+    await (0, user_service_js_1.deleteUserService)(id);
+    res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+    });
+});
 //# sourceMappingURL=user.controller.js.map
