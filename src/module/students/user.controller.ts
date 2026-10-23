@@ -1,57 +1,80 @@
 import type { Request, Response } from "express";
-import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from "./user.service";
-import { AppError } from "../../utils/AppError";
 
-export const getTotalUsers = async (req: Request, res: Response) => {
-  const users = await getAllUsers();
-  res.json({ success: true, data: users });
-};
+import { AppError } from "../../utils/AppError.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
 
-export const getOneUser = async (req: Request, res: Response) => {
-  const user = await getUserById(req.params.id as string);
+import {
+  deleteUserService,
+  getAllUsersService,
+  getUserByIdService,
+  updateUserService,
+} from "./user.service.js";
+import { updateUserSchema } from "./user.validator.js";
 
-  if (!user) {
-    throw new AppError("User not found", 404);
+// import { updateUserSchema } from "./user.validator.js";
+
+// Shared route-parameter check.
+const getUserId = (req: Request): string => {
+  const id = req.params.id;
+
+  if (typeof id !== "string" || !id.trim()) {
+    throw new AppError("User id is required", 400);
   }
 
-  res.json({ success: true, data: user });
+  return id.trim();
 };
 
-export const createNewUser = async (req: Request, res: Response) => {
-  const { name, email, password, phone, avatar, bio } = req.body;
+export const getAllUsersController = asyncHandler(
+  async (_req: Request, res: Response): Promise<void> => {
+    const users = await getAllUsersService();
 
-  if (!name || !email || !password) {
-    throw new AppError("name, email and password are required", 400);
-  }
+    res.status(200).json({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+    });
+  },
+);
 
-  // role body theke neya hocche na: sobai STUDENT hishebe shuru hobe
-  const user = await createUser({
-    name,
-    email,
-    password,
-    phone,
-    avatar,
-    bio,
-  });
+export const getUserByIdController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getUserId(req);
 
-  res.status(201).json({ success: true, data: user });
-};
+    const user = await getUserByIdService(id);
 
-export const updateExistUser = async (req: Request, res: Response) => {
-  const { name, phone, avatar, bio, isActive } = req.body;
+    res.status(200).json({
+      success: true,
+      message: "User fetched successfully",
+      data: user,
+    });
+  },
+);
 
-  const user = await updateUser(req.params.id as string, {
-    name,
-    phone,
-    avatar,
-    bio,
-    isActive,
-  });
+export const updateUserController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getUserId(req);
 
-  res.json({ success: true, data: user });
-};
+    const validatedInput = updateUserSchema.parse(req.body);
 
-export const deleteExistUser = async (req: Request, res: Response) => {
-  await deleteUser(req.params.id as string);
-  res.json({ success: true, message: "User deleted successfully" });
-};
+    const user = await updateUserService(id, validatedInput);
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: user,
+    });
+  },
+);
+
+export const deleteUserController = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const id = getUserId(req);
+
+    await deleteUserService(id);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
+  },
+);
