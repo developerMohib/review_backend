@@ -10,8 +10,8 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const compression_1 = __importDefault(require("compression"));
 const morgan_1 = __importDefault(require("morgan"));
 const express_rate_limit_1 = require("express-rate-limit");
-const user_route_js_1 = require("./routes/user.route.js");
-const mentor_routes_js_1 = require("./routes/mentor.routes.js");
+const mentor_routes_js_1 = require("./module/mentors/mentor.routes.js");
+const user_route_js_1 = require("./module/students/user.route.js");
 const app = (0, express_1.default)();
 const isProduction = process.env.NODE_ENV === 'production';
 const allowedOrigins = new Set((process.env.CLIENT_URL ?? '')

@@ -24,6 +24,9 @@ async function main() {
         };
         process.on("SIGTERM", () => void shutdown("SIGTERM"));
         process.on("SIGINT", () => void shutdown("SIGINT"));
+        process.on("unhandledRejection", (reason) => {
+            console.error("Unhandled Rejection:", reason);
+        });
     }
     catch (error) {
         console.error("Failed to start the server:", error);
