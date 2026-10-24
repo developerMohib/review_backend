@@ -10,6 +10,7 @@ import { mentorRoutes } from "./module/mentors/mentor.routes.js";
 import { userRoutes } from "./module/students/user.route.js";
 import { globalErrHandler } from "./utils/globalErrHandler.js";
 import { authRoutes } from "./module/auth/auth.routes.js";
+import { submissionRoutes } from "./module/submission/submission.route.js";
 
 const app: Application = express();
 
@@ -75,6 +76,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.use("/api", apiLimiter);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/submissions", submissionRoutes);
 app.use("/api/mentors", mentorRoutes);
 
 // ---------- 404 handler ----------

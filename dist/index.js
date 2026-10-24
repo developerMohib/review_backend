@@ -14,6 +14,7 @@ const mentor_routes_js_1 = require("./module/mentors/mentor.routes.js");
 const user_route_js_1 = require("./module/students/user.route.js");
 const globalErrHandler_js_1 = require("./utils/globalErrHandler.js");
 const auth_routes_js_1 = require("./module/auth/auth.routes.js");
+const submission_route_js_1 = require("./module/submission/submission.route.js");
 const app = (0, express_1.default)();
 const isProduction = process.env.NODE_ENV === "production";
 const allowedOrigins = new Set((process.env.CLIENT_URL ?? "")
@@ -65,6 +66,7 @@ app.get("/health", (req, res) => {
 app.use("/api", apiLimiter);
 app.use("/api/auth", auth_routes_js_1.authRoutes);
 app.use("/api/users", user_route_js_1.userRoutes);
+app.use("/api/submissions", submission_route_js_1.submissionRoutes);
 app.use("/api/mentors", mentor_routes_js_1.mentorRoutes);
 // ---------- 404 handler ----------
 app.use((req, res) => {
