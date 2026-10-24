@@ -1,9 +1,9 @@
 import type { Request } from "express";
 import jwt from "jsonwebtoken";
-import { Role } from "../db/generated/prisma";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AppError } from "../utils/AppError";
 import { prisma } from "../db/prisma";
+import { Role } from "../../generated/prisma";
 
 export interface AuthRequest extends Request {
   user?: {

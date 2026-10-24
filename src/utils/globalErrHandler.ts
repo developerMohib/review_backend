@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 import jwt from "jsonwebtoken";
-import { Prisma } from "../db/generated/prisma/client.js";
+// import { Prisma } from "../db/generated/prisma/client.js";
 import {AppError} from "./AppError.js";
+import { Prisma } from "../../generated/prisma/index.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 
