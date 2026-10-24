@@ -33,7 +33,7 @@ app.use((0, cors_1.default)({
         callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 }));
 // ---------- Rate limit (shudhu /api te) ----------

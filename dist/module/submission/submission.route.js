@@ -9,6 +9,6 @@ router.post("/", auth_1.authenticate, submission_controller_1.createSubmissionCo
 router.get("/my", auth_1.authenticate, submission_controller_1.getMySubmissionsController);
 router.get("/all", auth_1.authenticate, submission_controller_1.getAllSubmissionsController);
 // router.get("/:id", getUserByIdController);
-// router.patch("/:id", updateUserController);
+router.patch("/update/:id", auth_1.authenticate, submission_controller_1.updateSubmissionStatusController);
 exports.submissionRoutes = router;
 //# sourceMappingURL=submission.route.js.map
