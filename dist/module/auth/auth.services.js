@@ -3,12 +3,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginService = exports.registerService = void 0;
+exports.loginService = exports.registerService = exports.getCurrentUserService = void 0;
 // login korte hoile db table user collection thek check korbo, is ative only
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_js_1 = require("../../db/prisma.js");
 const AppError_js_1 = require("../../utils/AppError.js");
+const getCurrentUserService = async (userId) => {
+    const user = await prisma_js_1.prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            isActive: true,
+        },
+    });
+    if (!user) {
+        throw new AppError_js_1.AppError("User not found", 404);
+    }
+    if (!user.isActive) {
+        throw new AppError_js_1.AppError("Your account is inactive. Please contact support.", 403);
+    }
+    return user;
+};
+exports.getCurrentUserService = getCurrentUserService;
 const registerService = async (input) => {
     const hashedPassword = await bcryptjs_1.default.hash(input.password, 10);
     return prisma_js_1.prisma.user.create({
@@ -17,7 +39,7 @@ const registerService = async (input) => {
             email: input.email.toLowerCase().trim(),
             password: hashedPassword,
             // Public signup defaults are controlled by the backend.
-            role: "STUDENT",
+            role: "student",
             isActive: true,
             phone: null,
             avatar: null,

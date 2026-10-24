@@ -1,10 +1,23 @@
 "use strict";
 // login korte hoile db table user collection thek check korbo, is ative only
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logoutUser = exports.loginController = exports.registerController = void 0;
+exports.logoutUser = exports.loginController = exports.registerController = exports.getCurrentUserController = void 0;
 const auth_validators_1 = require("./auth.validators");
 const auth_services_1 = require("./auth.services");
 const asyncHandler_1 = require("../../utils/asyncHandler");
+const AppError_js_1 = require("../../utils/AppError.js");
+exports.getCurrentUserController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        throw new AppError_js_1.AppError("Authentication required", 401);
+    }
+    const user = await (0, auth_services_1.getCurrentUserService)(userId);
+    res.setHeader("Cache-Control", "no-store");
+    res.status(200).json({
+        success: true,
+        data: user,
+    });
+});
 exports.registerController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const validatedInput = auth_validators_1.registerUserSchema.parse(req.body);
     const newStudent = await (0, auth_services_1.registerService)(validatedInput);
@@ -20,7 +33,7 @@ exports.loginController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     // ৪. Success Response

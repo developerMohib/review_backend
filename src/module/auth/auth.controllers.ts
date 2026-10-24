@@ -2,8 +2,31 @@
 
 import { Request, Response } from "express";
 import { loginSchema, registerUserSchema } from "./auth.validators";
-import { registerService, loginService } from "./auth.services";
+import { registerService, loginService, getCurrentUserService } from "./auth.services";
 import { asyncHandler } from "../../utils/asyncHandler";
+
+
+import type { AuthRequest } from "../../middlewares/auth.js";
+import { AppError } from "../../utils/AppError.js";
+
+export const getCurrentUserController = asyncHandler(
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new AppError("Authentication required", 401);
+    }
+
+    const user = await getCurrentUserService(userId);
+
+    res.setHeader("Cache-Control", "no-store");
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  },
+);
 
 export const registerController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
@@ -29,7 +52,7 @@ export const loginController = asyncHandler(
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

@@ -22,14 +22,13 @@ const allowedOrigins = new Set(
     .filter(Boolean),
 );
 
-// ---------- Security & logging ----------
 app.use(helmet());
 app.use(morgan(isProduction ? "combined" : "dev"));
 app.use(compression());
 
 app.use(
   cors({
-    origin(origin, callback) {
+    origin: (origin, callback) => {
       if (!isProduction || !origin || allowedOrigins.has(origin)) {
         callback(null, true);
         return;
@@ -37,6 +36,8 @@ app.use(
       callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   }),
 );
 

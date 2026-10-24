@@ -1,4 +1,4 @@
-import { MentorStatus } from "../../db/generated/prisma/enums";
+import { MentorStatus } from "../../db/generated/prisma/index";
 import { prisma } from "../../db/prisma";
 import { AppError } from "../../utils/AppError";
 
@@ -69,7 +69,7 @@ export const createMentorService = async (
     data: {
       userId: input.userId,
       expertise: input.expertise,
-      status: "PENDING",
+      status: "pending",
 
       ...(input.experience !== undefined && {
         experience: input.experience,
