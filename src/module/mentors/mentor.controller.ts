@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { MentorStatus } from "../../db/generated/prisma";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import {
   createMentorService,
@@ -9,6 +8,7 @@ import {
   updateMentorService,
 } from "./mentor.service.js";
 import { AppError } from "../../utils/AppError.js";
+import { MentorStatus } from "../../../generated/prisma/index.js";
 
 const isNonEmptyStringArray = (
   value: unknown,

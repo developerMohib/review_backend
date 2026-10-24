@@ -6,8 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.globalErrHandler = void 0;
 const zod_1 = require("zod");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const client_js_1 = require("../db/generated/prisma/client.js");
+// import { Prisma } from "../db/generated/prisma/client.js";
 const AppError_js_1 = require("./AppError.js");
+const index_js_1 = require("../../generated/prisma/index.js");
 const isProduction = process.env.NODE_ENV === "production";
 const globalErrHandler = (error, req, res, _next) => {
     // 1. Zod validation
@@ -29,7 +30,7 @@ const globalErrHandler = (error, req, res, _next) => {
         return;
     }
     // 3. Prisma
-    if (error instanceof client_js_1.Prisma.PrismaClientKnownRequestError) {
+    if (error instanceof index_js_1.Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
             res.status(409).json({ success: false, message: "Accout already exists" });
             return;

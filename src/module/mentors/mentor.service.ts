@@ -1,4 +1,4 @@
-import { MentorStatus } from "../../db/generated/prisma/index";
+import { MentorStatus } from "../../../generated/prisma";
 import { prisma } from "../../db/prisma";
 import { AppError } from "../../utils/AppError";
 

@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prisma = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const client_js_1 = require("./generated/prisma/client.js");
+const prisma_1 = require("../../generated/prisma");
 const adapter_neon_1 = require("@prisma/adapter-neon");
 let databaseUrl = process.env["DATABASE_URL"];
 if (!databaseUrl) {
@@ -19,5 +19,5 @@ if (!databaseUrl) {
 const adapter = new adapter_neon_1.PrismaNeon({
     connectionString: databaseUrl,
 });
-exports.prisma = new client_js_1.PrismaClient({ adapter });
+exports.prisma = new prisma_1.PrismaClient({ adapter });
 //# sourceMappingURL=prisma.js.map

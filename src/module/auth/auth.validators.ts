@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { Role } from '../../db/generated/prisma';
-// import { Role } from '../../db/generated/prisma/enums';
+import { Role } from '../../../generated/prisma';
 
 export interface CreateUserInput {
   name: string;
