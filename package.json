@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
+    "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
     "prisma:format" : "npx prisma format",
     "prisma:push": "prisma db push",  
