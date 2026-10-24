@@ -2,9 +2,12 @@
 
 import { Request, Response } from "express";
 import { loginSchema, registerUserSchema } from "./auth.validators";
-import { registerService, loginService, getCurrentUserService } from "./auth.services";
+import {
+  registerService,
+  loginService,
+  getCurrentUserService,
+} from "./auth.services";
 import { asyncHandler } from "../../utils/asyncHandler";
-
 
 import type { AuthRequest } from "../../middlewares/auth.js";
 import { AppError } from "../../utils/AppError.js";
@@ -52,8 +55,8 @@ export const loginController = asyncHandler(
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ক্রস-অরিজিনের জন্য 'none' লাগবে
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     // ৪. Success Response
