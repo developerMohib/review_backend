@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMentorController = exports.updateMentorController = exports.createMentorController = exports.getMentorByIdController = exports.getAllMentorsController = void 0;
-const enums_js_1 = require("../../db/generated/prisma/enums.js");
+const prisma_1 = require("../../db/generated/prisma");
 const asyncHandler_js_1 = require("../../utils/asyncHandler.js");
 const mentor_service_js_1 = require("./mentor.service.js");
 const AppError_js_1 = require("../../utils/AppError.js");
@@ -13,7 +13,7 @@ const isNonNegativeNumber = (value) => typeof value === "number" &&
     Number.isFinite(value) &&
     value >= 0;
 const isMentorStatus = (value) => typeof value === "string" &&
-    Object.values(enums_js_1.MentorStatus).some((status) => status === value);
+    Object.values(prisma_1.MentorStatus).some((status) => status === value);
 const getMentorId = (req) => {
     const id = req.params.id;
     if (typeof id !== "string" || !id.trim()) {

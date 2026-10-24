@@ -16,7 +16,7 @@ exports.registerUserSchema = zod_1.z.strictObject({
         .pipe(zod_1.z.email("Enter a valid email address.")),
     password: zod_1.z
         .string()
-        .min(12, "Password must contain at least 12 characters.")
+        .min(6, "Password must contain at least 6 characters.")
         .max(128, "Password must not exceed 128 characters."),
 });
 exports.loginSchema = zod_1.z.object({

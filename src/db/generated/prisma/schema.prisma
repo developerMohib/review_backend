@@ -8,15 +8,21 @@ datasource db {
 }
 
 enum Role {
-  STUDENT
-  MENTOR
-  ADMIN
+  student
+  mentor
+  admin
 }
 
 enum MentorStatus {
-  PENDING
-  APPROVED
-  REJECTED
+  pending
+  approved
+  rejected
+}
+
+enum SubmissionStatus {
+  pending
+  approved
+  rejected
 }
 
 model User {
@@ -24,7 +30,7 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      Role     @default(STUDENT)
+  role      Role     @default(student)
   phone     String?
   avatar    String?
   bio       String?
@@ -32,25 +38,70 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  mentorProfile Mentor?
+  // Relations
+  submissions         Submission[] @relation("StudentSubmissions")
+  reviewedSubmissions Submission[] @relation("MentorReviews")
+  feedbacks           Feedback[]   @relation("MentorFeedback")
+  mentorProfile       Mentor?      @relation("UserMentorProfile")
+  reviewedMentors     Mentor[]     @relation("AdminMentorReviews")
 
   @@map("users")
 }
 
 model Mentor {
-  id            String       @id @default(cuid())
-  userId        String       @unique
-  expertise     String[]
-  experience    Int          @default(0)
-  hourlyRate    Float        @default(0)
-  availability  String?
-  status        MentorStatus @default(PENDING)
-  rating        Float        @default(0)
-  totalSessions Int          @default(0)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  expertise    String[]
+  experience   Int          @default(0)
+  motivation   String?
+  status       MentorStatus @default(pending)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User  @relation("UserMentorProfile", fields: [userId], references: [id], onDelete: Cascade)
+  reviewedBy User? @relation("AdminMentorReviews", fields: [reviewedById], references: [id], onDelete: SetNull)
 
+  @@index([status])
   @@map("mentors")
+}
+
+model Submission {
+  id          String           @id @default(cuid())
+  projectName String
+  category    String?
+  repoUrl     String
+  liveUrl     String
+  description String           @db.Text
+  status      SubmissionStatus @default(pending)
+
+  userId String
+  user   User   @relation("StudentSubmissions", fields: [userId], references: [id], onDelete: Cascade)
+
+  reviewedById String?
+  reviewedBy   User?     @relation("MentorReviews", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt   DateTime?
+
+  feedbacks Feedback[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@map("submissions")
+}
+
+model Feedback {
+  id           String     @id @default(cuid())
+  comment      String     @db.Text
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  mentorId     String
+  mentor       User       @relation("MentorFeedback", fields: [mentorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([submissionId, mentorId])
+  @@index([submissionId])
+  @@map("feedbacks")
 }

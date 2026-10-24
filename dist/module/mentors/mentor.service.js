@@ -48,7 +48,7 @@ const createMentorService = async (input) => {
         data: {
             userId: input.userId,
             expertise: input.expertise,
-            status: "PENDING",
+            status: "pending",
             ...(input.experience !== undefined && {
                 experience: input.experience,
             }),

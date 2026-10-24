@@ -139,13 +139,35 @@ exports.Prisma.MentorScalarFieldEnum = {
   userId: 'userId',
   expertise: 'expertise',
   experience: 'experience',
-  hourlyRate: 'hourlyRate',
-  availability: 'availability',
+  motivation: 'motivation',
   status: 'status',
-  rating: 'rating',
-  totalSessions: 'totalSessions',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubmissionScalarFieldEnum = {
+  id: 'id',
+  projectName: 'projectName',
+  category: 'category',
+  repoUrl: 'repoUrl',
+  liveUrl: 'liveUrl',
+  description: 'description',
+  status: 'status',
+  userId: 'userId',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  comment: 'comment',
+  submissionId: 'submissionId',
+  mentorId: 'mentorId',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -163,20 +185,28 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 exports.Role = exports.$Enums.Role = {
-  STUDENT: 'STUDENT',
-  MENTOR: 'MENTOR',
-  ADMIN: 'ADMIN'
+  student: 'student',
+  mentor: 'mentor',
+  admin: 'admin'
 };
 
 exports.MentorStatus = exports.$Enums.MentorStatus = {
-  PENDING: 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED'
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
+};
+
+exports.SubmissionStatus = exports.$Enums.SubmissionStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Mentor: 'Mentor'
+  Mentor: 'Mentor',
+  Submission: 'Submission',
+  Feedback: 'Feedback'
 };
 
 /**

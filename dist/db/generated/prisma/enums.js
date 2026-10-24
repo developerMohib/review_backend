@@ -9,13 +9,18 @@
 * 🟢 You can import this file directly.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MentorStatus = exports.Role = void 0;
+exports.SubmissionStatus = exports.MentorStatus = exports.Role = void 0;
 exports.Role = {
     STUDENT: 'STUDENT',
     MENTOR: 'MENTOR',
     ADMIN: 'ADMIN'
 };
 exports.MentorStatus = {
+    PENDING: 'PENDING',
+    APPROVED: 'APPROVED',
+    REJECTED: 'REJECTED'
+};
+exports.SubmissionStatus = {
     PENDING: 'PENDING',
     APPROVED: 'APPROVED',
     REJECTED: 'REJECTED'

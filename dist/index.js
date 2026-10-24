@@ -20,12 +20,11 @@ const allowedOrigins = new Set((process.env.CLIENT_URL ?? "")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean));
-// ---------- Security & logging ----------
 app.use((0, helmet_1.default)());
 app.use((0, morgan_1.default)(isProduction ? "combined" : "dev"));
 app.use((0, compression_1.default)());
 app.use((0, cors_1.default)({
-    origin(origin, callback) {
+    origin: (origin, callback) => {
         if (!isProduction || !origin || allowedOrigins.has(origin)) {
             callback(null, true);
             return;
@@ -33,6 +32,8 @@ app.use((0, cors_1.default)({
         callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 }));
 // ---------- Rate limit (shudhu /api te) ----------
 const apiLimiter = (0, express_rate_limit_1.rateLimit)({
