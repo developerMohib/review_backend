@@ -1,8 +1,24 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
-import { createSubmissionService, getAllSubmissionsService, getMySubmissionsService } from "./submission.service";
+import { createSubmissionService, getAllSubmissionsService, getMySubmissionsService, updateSubmissionStatusService } from "./submission.service";
 import { createSubmissionSchema } from "./submission.validation";
 import { AuthRequest } from "../../middlewares/auth";
+import { SubmissionStatus } from "../../../generated/prisma";
+
+type UpdatableStatus = Extract<
+  SubmissionStatus,
+  "approved" | "rejected"
+>;
+
+
+const isUpdatableStatus = (
+  status: unknown
+): status is UpdatableStatus => {
+  return (
+    status === "approved" || status === "rejected"
+  );
+};
+
 
 export const createSubmissionController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -15,7 +31,6 @@ export const createSubmissionController = asyncHandler(
       });
       return
     }
-    console.log('req.bosy',req.body)
     const input = createSubmissionSchema.parse(req.body);
 
     const submission = await createSubmissionService(userId, input);
@@ -61,7 +76,6 @@ export const getMySubmissionsController = asyncHandler(
   }
 );
 
-
 export const getAllSubmissionsController = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const userId = req.user?.id;
@@ -86,5 +100,50 @@ export const getAllSubmissionsController = asyncHandler(
       message: "Submissions fetched successfully",
       data: result,
     });
+  }
+);
+
+export const updateSubmissionStatusController = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const mentorId = req.user?.id;
+    const submissionId = req.params.id;
+    const { status } = req.body as { status?: SubmissionStatus };
+
+    if (!mentorId) {
+      res.status(401).json({
+        success: false,
+        message: "Unauthorized: Mentor ID not found in request",
+      });
+      return;
+    }
+
+    if (!submissionId) {
+      res.status(400).json({
+        success: false,
+        message: "Submission ID is required",
+      });
+      return;
+    }
+
+    if (!isUpdatableStatus(status)) {
+      res.status(400).json({
+        success: false,
+        message: "Status must be either approved or rejected",
+      });
+      return;
+    }
+
+    const updatedSubmission = await updateSubmissionStatusService(
+      submissionId,
+      mentorId,
+      status
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Submission ${status} successfully`,
+      data: updatedSubmission,
+    });
+    return;
   }
 );

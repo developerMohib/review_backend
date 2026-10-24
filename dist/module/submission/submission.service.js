@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllSubmissionsService = exports.getMySubmissionsService = exports.createSubmissionService = void 0;
+exports.updateSubmissionStatusService = exports.getAllSubmissionsService = exports.getMySubmissionsService = exports.createSubmissionService = void 0;
 const prisma_1 = require("../../../generated/prisma");
 const prisma_2 = require("../../db/prisma");
 const AppError_1 = require("../../utils/AppError");
@@ -134,4 +134,56 @@ const getAllSubmissionsService = async (page, limit, status) => {
     }
 };
 exports.getAllSubmissionsService = getAllSubmissionsService;
+const FEEDBACK_COMMENTS = {
+    approved: "Your project has been reviewed and approved by the mentor. Great work!",
+    rejected: "Your project has been reviewed and rejected by the mentor. Please review the feedback and try again.",
+};
+const updateSubmissionStatusService = async (submissionId, mentorId, status) => {
+    const existingSubmission = await prisma_2.prisma.submission.findUnique({
+        where: {
+            id: submissionId,
+        },
+    });
+    if (!existingSubmission) {
+        throw new AppError_1.AppError("Submission not found");
+    }
+    if (existingSubmission.status === status) {
+        throw new AppError_1.AppError(`Submission is already ${status}`);
+    }
+    const updatedSubmission = await prisma_2.prisma.submission.update({
+        where: {
+            id: submissionId,
+        },
+        data: {
+            status,
+        },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+        },
+    });
+    await prisma_2.prisma.feedback.upsert({
+        where: {
+            submissionId_mentorId: {
+                submissionId,
+                mentorId,
+            },
+        },
+        update: {
+            comment: FEEDBACK_COMMENTS[status],
+        },
+        create: {
+            submissionId,
+            mentorId,
+            comment: FEEDBACK_COMMENTS[status],
+        },
+    });
+    return updatedSubmission;
+};
+exports.updateSubmissionStatusService = updateSubmissionStatusService;
 //# sourceMappingURL=submission.service.js.map
