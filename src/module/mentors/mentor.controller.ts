@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { MentorStatus } from "../../db/generated/prisma/enums.js";
+import { MentorStatus } from "../../db/generated/prisma";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import {
   createMentorService,

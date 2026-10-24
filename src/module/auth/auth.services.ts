@@ -5,6 +5,37 @@ import { prisma } from "../../db/prisma.js";
 import { AppError } from "../../utils/AppError.js";
 import { RegisterInput } from "./auth.validators.js";
 
+export const getCurrentUserService = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  if (!user.isActive) {
+    throw new AppError(
+      "Your account is inactive. Please contact support.",
+      403,
+    );
+  }
+
+  return user;
+};
+
+
+
 export const registerService = async (input: RegisterInput) => {
   const hashedPassword = await bcrypt.hash(input.password, 10);
 
@@ -15,7 +46,7 @@ export const registerService = async (input: RegisterInput) => {
       password: hashedPassword,
 
       // Public signup defaults are controlled by the backend.
-      role: "STUDENT",
+      role: "student",
       isActive: true,
       phone: null,
       avatar: null,

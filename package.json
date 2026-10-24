@@ -7,9 +7,10 @@
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
     "start": "node dist/server.js",
-    "prisma:validate": "prisma validate",
+    "prisma:format" : "npx prisma format",
+    "prisma:push": "prisma db push",  
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
+    "prisma:validate": "prisma validate",
     "prisma:setup": "prisma validate && prisma generate",
     "prisma:seed": "tsx prisma/seed.ts"
   },

@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { Role } from '../../db/generated/prisma/enums';
+import { Role } from '../../db/generated/prisma';
+// import { Role } from '../../db/generated/prisma/enums';
 
 export interface CreateUserInput {
   name: string;
@@ -36,7 +37,7 @@ export const registerUserSchema = z.strictObject({
 
   password: z
     .string()
-    .min(12, "Password must contain at least 12 characters.")
+    .min(6, "Password must contain at least 6 characters.")
     .max(128, "Password must not exceed 128 characters."),
 });
 
