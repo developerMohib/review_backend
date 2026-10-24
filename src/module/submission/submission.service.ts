@@ -148,3 +148,74 @@ export const getAllSubmissionsService = async (page: number, limit: number, stat
     throw error; 
   }
 };
+
+
+const FEEDBACK_COMMENTS: Record<
+  "approved" | "rejected",
+  string
+> = {
+  approved:
+    "Your project has been reviewed and approved by the mentor. Great work!",
+  rejected:
+    "Your project has been reviewed and rejected by the mentor. Please review the feedback and try again.",
+};
+
+export const updateSubmissionStatusService = async (
+  submissionId: string,
+  mentorId: string,
+  status: "approved" | "rejected"
+) => {
+  const existingSubmission = await prisma.submission.findUnique({
+    where: {
+      id: submissionId,
+    },
+  });
+
+  if (!existingSubmission) {
+    throw new AppError( "Submission not found");
+  }
+
+  if (existingSubmission.status === status) {
+    throw new AppError(
+      
+      `Submission is already ${status}`
+    );
+  }
+
+  const updatedSubmission = await prisma.submission.update({
+    where: {
+      id: submissionId,
+    },
+    data: {
+      status,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  await prisma.feedback.upsert({
+    where: {
+      submissionId_mentorId: {
+        submissionId,
+        mentorId,
+      },
+    },
+    update: {
+      comment: FEEDBACK_COMMENTS[status],
+    },
+    create: {
+      submissionId,
+      mentorId,
+      comment: FEEDBACK_COMMENTS[status],
+    },
+  });
+
+  return updatedSubmission;
+};
