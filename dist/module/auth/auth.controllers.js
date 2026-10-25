@@ -33,7 +33,7 @@ exports.loginController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ক্রস-অরিজিনের জন্য 'none' লাগবে
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     // ৪. Success Response
