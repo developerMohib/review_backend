@@ -14,7 +14,6 @@ export interface AuthRequest extends Request {
 
 export const authenticate = asyncHandler(
   async (req: AuthRequest, _res, next): Promise<void> => {
-    // Cookie name matches res.cookie("token", ...).
     const token: unknown = req.cookies?.token;
 
     if (typeof token !== "string" || !token) {
