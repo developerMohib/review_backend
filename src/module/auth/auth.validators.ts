@@ -35,7 +35,7 @@ export const registerUserSchema = z.strictObject({
     .pipe(z.email("Enter a valid email address.")),
 
   password: z
-    .string()
+    .string().trim()
     .min(6, "Password must contain at least 6 characters.")
     .max(128, "Password must not exceed 128 characters."),
 });
@@ -43,6 +43,6 @@ export const registerUserSchema = z.strictObject({
 export type RegisterInput = z.infer<typeof registerUserSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters")
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().trim().min(6, "Password must be at least 6 characters")
 });
