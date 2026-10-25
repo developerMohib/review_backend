@@ -35,6 +35,7 @@ exports.loginController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/'
     });
     // ৪. Success Response
     res.status(200).json({
@@ -47,7 +48,7 @@ exports.logoutUser = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
         path: "/",
     });
     res.status(200).json({

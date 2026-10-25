@@ -9,7 +9,6 @@ const asyncHandler_1 = require("../utils/asyncHandler");
 const AppError_1 = require("../utils/AppError");
 const prisma_1 = require("../db/prisma");
 exports.authenticate = (0, asyncHandler_1.asyncHandler)(async (req, _res, next) => {
-    // Cookie name matches res.cookie("token", ...).
     const token = req.cookies?.token;
     if (typeof token !== "string" || !token) {
         throw new AppError_1.AppError("Authentication required. Please log in.", 401);
