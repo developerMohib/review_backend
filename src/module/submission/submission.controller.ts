@@ -23,7 +23,6 @@ const isUpdatableStatus = (
 export const createSubmissionController = asyncHandler(
   async (req: Request, res: Response) => {
     const userId = (req as any).user?.id || (req as any).auth?.userId;
-    console.log('user' ,userId)
     if (!userId) {
       res.status(401).json({
         success: false,
@@ -103,40 +102,43 @@ export const getAllSubmissionsController = asyncHandler(
   }
 );
 
+// controllers/submission.controller.ts
+
 export const updateSubmissionStatusController = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const mentorId = req.user?.id;
     const submissionId = req.params.id;
-    const { status } = req.body as { status?: SubmissionStatus };
+    const { status, comment } = req.body as { 
+      status?: SubmissionStatus; 
+      comment?: string; 
+    };
 
     if (!mentorId) {
-      res.status(401).json({
-        success: false,
-        message: "Unauthorized: Mentor ID not found in request",
-      });
+      res.status(401).json({ success: false, message: "Unauthorized: Mentor ID not found" });
       return;
     }
 
     if (!submissionId) {
-      res.status(400).json({
-        success: false,
-        message: "Submission ID is required",
-      });
+      res.status(400).json({ success: false, message: "Submission ID is required" });
       return;
     }
 
     if (!isUpdatableStatus(status)) {
-      res.status(400).json({
-        success: false,
-        message: "Status must be either approved or rejected",
-      });
+      res.status(400).json({ success: false, message: "Status must be either approved or rejected" });
+      return;
+    }
+
+    // Comment validation (খালি কমেন্ট চেক করা হচ্ছে)
+    if (!comment || comment.trim().length === 0) {
+      res.status(400).json({ success: false, message: "Feedback comment is required" });
       return;
     }
 
     const updatedSubmission = await updateSubmissionStatusService(
       submissionId,
       mentorId,
-      status
+      status!,
+      comment.trim()
     );
 
     res.status(200).json({
@@ -144,6 +146,5 @@ export const updateSubmissionStatusController = asyncHandler(
       message: `Submission ${status} successfully`,
       data: updatedSubmission,
     });
-    return;
   }
 );

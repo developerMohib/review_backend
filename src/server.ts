@@ -7,10 +7,8 @@ const port = Number(env.PORT) || 4000;
 async function main() {
   try {
     await prisma.$connect();
-    console.log("Neon PostgreSQL connected successfully.");
-
     const server = app.listen(port, "0.0.0.0", () => {
-      console.log(`Admin app listening on port ${port}`);
+      console.log(`Neon PostgreSQL connected and Admin app listening on port ${port}`);
     });
 
     const shutdown = async (signal: string) => {

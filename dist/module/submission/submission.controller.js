@@ -9,7 +9,6 @@ const isUpdatableStatus = (status) => {
 };
 exports.createSubmissionController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user?.id || req.auth?.userId;
-    console.log('user', userId);
     if (!userId) {
         res.status(401).json({
             success: false,
@@ -66,37 +65,33 @@ exports.getAllSubmissionsController = (0, asyncHandler_1.asyncHandler)(async (re
         data: result,
     });
 });
+// controllers/submission.controller.ts
 exports.updateSubmissionStatusController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const mentorId = req.user?.id;
     const submissionId = req.params.id;
-    const { status } = req.body;
+    const { status, comment } = req.body;
     if (!mentorId) {
-        res.status(401).json({
-            success: false,
-            message: "Unauthorized: Mentor ID not found in request",
-        });
+        res.status(401).json({ success: false, message: "Unauthorized: Mentor ID not found" });
         return;
     }
     if (!submissionId) {
-        res.status(400).json({
-            success: false,
-            message: "Submission ID is required",
-        });
+        res.status(400).json({ success: false, message: "Submission ID is required" });
         return;
     }
     if (!isUpdatableStatus(status)) {
-        res.status(400).json({
-            success: false,
-            message: "Status must be either approved or rejected",
-        });
+        res.status(400).json({ success: false, message: "Status must be either approved or rejected" });
         return;
     }
-    const updatedSubmission = await (0, submission_service_1.updateSubmissionStatusService)(submissionId, mentorId, status);
+    // Comment validation (খালি কমেন্ট চেক করা হচ্ছে)
+    if (!comment || comment.trim().length === 0) {
+        res.status(400).json({ success: false, message: "Feedback comment is required" });
+        return;
+    }
+    const updatedSubmission = await (0, submission_service_1.updateSubmissionStatusService)(submissionId, mentorId, status, comment.trim());
     res.status(200).json({
         success: true,
         message: `Submission ${status} successfully`,
         data: updatedSubmission,
     });
-    return;
 });
 //# sourceMappingURL=submission.controller.js.map
