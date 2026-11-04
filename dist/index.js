@@ -19,21 +19,24 @@ const app = (0, express_1.default)();
 const isProduction = process.env.NODE_ENV === "production";
 const allowedOrigins = new Set((process.env.CLIENT_URL ?? "")
     .split(",")
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean));
 app.use((0, helmet_1.default)());
 app.use((0, morgan_1.default)(isProduction ? "combined" : "dev"));
 app.use((0, compression_1.default)());
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
-        if (!isProduction || !origin || allowedOrigins.has(origin)) {
-            callback(null, true);
-            return;
+        if (!origin || allowedOrigins.has(origin)) {
+            return callback(null, true);
         }
-        callback(new Error(`CORS blocked: ${origin}`));
+        if (!isProduction) {
+            return callback(null, true);
+        }
+        console.warn("CORS blocked origin:", origin);
+        return callback(null, false);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 }));
 // ---------- Rate limit (shudhu /api te) ----------

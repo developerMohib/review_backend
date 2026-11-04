@@ -19,7 +19,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const allowedOrigins = new Set(
   (process.env.CLIENT_URL ?? "")
     .split(",")
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean),
 );
 
@@ -30,14 +30,19 @@ app.use(compression());
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!isProduction || !origin || allowedOrigins.has(origin)) {
-        callback(null, true);
-        return;
+      if (!origin || allowedOrigins.has(origin)) {
+        return callback(null, true);
       }
-      callback(new Error(`CORS blocked: ${origin}`));
+
+      if (!isProduction) {
+        return callback(null, true);
+      }
+
+      console.warn("CORS blocked origin:", origin);
+      return callback(null, false);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   }),
 );
