@@ -16,7 +16,12 @@ export interface AuthRequest extends Request {
 export const authenticate = asyncHandler(
   async (req: AuthRequest, _res, next): Promise<void> => {
     const token: unknown = req.cookies?.token;
-
+console.log("Auth debug:", {
+  path: req.originalUrl,
+  hasCookieHeader: Boolean(req.headers.cookie),
+  cookieNames: Object.keys(req.cookies ?? {}),
+  hasToken: typeof token === "string" && token.length > 0,
+});
     if (typeof token !== "string" || !token) {
       throw new AppError("Authentication required. Please log in.", 401);
     }
