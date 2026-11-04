@@ -4,8 +4,9 @@ import jwt from "jsonwebtoken";
 // import { Prisma } from "../db/generated/prisma/client.js";
 import {AppError} from "./AppError.js";
 import { Prisma } from "../../generated/prisma/index.js";
+import { env } from "../config/env.config.js";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = env.NODE_ENV === "production";
 
 export const globalErrHandler = (
   error: unknown,

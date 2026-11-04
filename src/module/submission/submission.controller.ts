@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { createSubmissionService, getAllSubmissionsService, getMySubmissionsService, updateSubmissionStatusService } from "./submission.service";
 import { createSubmissionSchema } from "./submission.validation";
-import { AuthRequest } from "../../middlewares/auth";
+import { AuthRequest } from "../../middlewares/authmiddleware";
 import { SubmissionStatus } from "../../../generated/prisma";
 
 type UpdatableStatus = Extract<

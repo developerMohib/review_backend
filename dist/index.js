@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const compression_1 = __importDefault(require("compression"));
@@ -15,30 +14,14 @@ const user_route_js_1 = require("./module/students/user.route.js");
 const globalErrHandler_js_1 = require("./utils/globalErrHandler.js");
 const auth_routes_js_1 = require("./module/auth/auth.routes.js");
 const submission_route_js_1 = require("./module/submission/submission.route.js");
+const env_config_js_1 = require("./config/env.config.js");
+const corsmiddleware_js_1 = require("./middlewares/corsmiddleware.js");
 const app = (0, express_1.default)();
-const isProduction = process.env.NODE_ENV === "production";
-const allowedOrigins = new Set((process.env.CLIENT_URL ?? "")
-    .split(",")
-    .map((origin) => origin.trim().replace(/\/$/, ""))
-    .filter(Boolean));
+const isProduction = env_config_js_1.env.NODE_ENV === "production";
 app.use((0, helmet_1.default)());
 app.use((0, morgan_1.default)(isProduction ? "combined" : "dev"));
 app.use((0, compression_1.default)());
-app.use((0, cors_1.default)({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.has(origin)) {
-            return callback(null, true);
-        }
-        if (!isProduction) {
-            return callback(null, true);
-        }
-        console.warn("CORS blocked origin:", origin);
-        return callback(null, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-}));
+app.use(corsmiddleware_js_1.corsMiddleware);
 // ---------- Rate limit (shudhu /api te) ----------
 const apiLimiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 15 * 60 * 1000, // 15 minute

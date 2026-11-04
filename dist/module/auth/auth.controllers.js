@@ -6,6 +6,7 @@ const auth_validators_1 = require("./auth.validators");
 const auth_services_1 = require("./auth.services");
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const AppError_js_1 = require("../../utils/AppError.js");
+const env_config_1 = require("../../config/env.config");
 exports.getCurrentUserController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
@@ -32,8 +33,8 @@ exports.loginController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const { token, user } = await (0, auth_services_1.loginService)(validatedData.email, validatedData.password);
     res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: env_config_1.env.NODE_ENV === "production",
+        sameSite: env_config_1.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/'
     });
@@ -47,8 +48,8 @@ exports.loginController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
 exports.logoutUser = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
     res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        secure: env_config_1.env.NODE_ENV === "production",
+        sameSite: env_config_1.env.NODE_ENV === "production" ? "none" : "strict",
         path: "/",
     });
     res.status(200).json({
