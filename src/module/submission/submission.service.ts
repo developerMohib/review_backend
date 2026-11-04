@@ -150,71 +150,41 @@ export const getAllSubmissionsService = async (page: number, limit: number, stat
 };
 
 
-const FEEDBACK_COMMENTS: Record<
-  "approved" | "rejected",
-  string
-> = {
-  approved:
-    "Your project has been reviewed and approved by the mentor. Great work!",
-  rejected:
-    "Your project has been reviewed and rejected by the mentor. Please review the feedback and try again.",
-};
-
 export const updateSubmissionStatusService = async (
   submissionId: string,
   mentorId: string,
-  status: "approved" | "rejected"
+  status: "approved" | "rejected",
+  comment: string // নতুন প্যারামিটার যুক্ত করা হলো
 ) => {
   const existingSubmission = await prisma.submission.findUnique({
-    where: {
-      id: submissionId,
-    },
+    where: { id: submissionId },
   });
 
   if (!existingSubmission) {
-    throw new AppError( "Submission not found");
+    throw new AppError("Submission not found", 404);
   }
 
   if (existingSubmission.status === status) {
-    throw new AppError(
-      
-      `Submission is already ${status}`
-    );
+    throw new AppError(`Submission is already ${status}`, 400);
   }
 
   const updatedSubmission = await prisma.submission.update({
-    where: {
-      id: submissionId,
-    },
-    data: {
-      status,
-    },
+    where: { id: submissionId },
+    data: { status },
     include: {
       user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
+        select: { id: true, name: true, email: true },
       },
     },
   });
 
+  // হার্ডকোডেড টেক্সট বাদ দিয়ে mentor এর দেওয়া comment সেভ করা হচ্ছে
   await prisma.feedback.upsert({
     where: {
-      submissionId_mentorId: {
-        submissionId,
-        mentorId,
-      },
+      submissionId_mentorId: { submissionId, mentorId },
     },
-    update: {
-      comment: FEEDBACK_COMMENTS[status],
-    },
-    create: {
-      submissionId,
-      mentorId,
-      comment: FEEDBACK_COMMENTS[status],
-    },
+    update: { comment },
+    create: { submissionId, mentorId, comment },
   });
 
   return updatedSubmission;
