@@ -19,6 +19,7 @@ const envSchema = z.object({
   MENTOR_NAME: z.string().min(2, "MENTOR_NAME is required"),
   MENTOR_EMAIL: z.string().email("Invalid MENTOR_EMAIL format"),
   MENTOR_PASSWORD: z.string().min(6, "MENTOR_PASSWORD must be at least 6 characters long"),
+  CORS_ORIGINS: z.string().optional(),
 });
 
 

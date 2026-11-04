@@ -1,27 +1,27 @@
-import cors, { type CorsOptions } from 'cors';
-import { env } from '../config/env.config';
+import cors, { type CorsOptions } from "cors";
+import { env } from "../config/env.config.js";
 
 const allowedOrigins = new Set([
   env.CLIENT_URL,
-  env.SERVER_URL
+  ...(env.CORS_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 ]);
 
 const options: CorsOptions = {
   origin(origin, callback) {
-    // No Origin means curl, Postman, server-to-server, etc.
-    if (!origin) {
+    if (!origin || allowedOrigins.has(origin)) {
       return callback(null, true);
     }
 
-    if (allowedOrigins.has(origin)) {
-      return callback(null, origin);
-    }
-
+    console.warn(`Blocked CORS origin: ${origin}`);
     return callback(null, false);
   },
+
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   maxAge: 600,
 };
 
