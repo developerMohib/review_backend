@@ -5,7 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const index_js_1 = __importDefault(require("./index.js"));
 const prisma_js_1 = require("./db/prisma.js");
-const port = Number(process.env.PORT) || 4000;
+const env_config_js_1 = require("./config/env.config.js");
+const port = Number(env_config_js_1.env.PORT) || 4000;
 async function main() {
     try {
         await prisma_js_1.prisma.$connect();

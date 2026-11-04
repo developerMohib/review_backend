@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../../db/prisma.js";
 import { AppError } from "../../utils/AppError.js";
 import { RegisterInput } from "./auth.validators.js";
+import { env } from "../../config/env.config.js";
 
 export const getCurrentUserService = async (userId: string) => {
   const user = await prisma.user.findUnique({
@@ -72,7 +73,7 @@ export const loginService = async (email: string, password: string) => {
     throw new AppError("Your account is inactive. Please contact support.", 403);
   }
 
-  const secret = process.env.JWT_SECRET;
+  const secret =env.JWT_SECRET;
   if (!secret) {
     throw new AppError("JWT_SECRET is not configured", 500);
   }

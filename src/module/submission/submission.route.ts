@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createSubmissionController, getAllSubmissionsController, getMySubmissionsController, updateSubmissionStatusController } from "./submission.controller";
-import { authenticate } from "../../middlewares/auth";
+import { authenticate } from "../../middlewares/authmiddleware";
 
 const router = Router();
 

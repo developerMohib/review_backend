@@ -8,12 +8,13 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const asyncHandler_1 = require("../utils/asyncHandler");
 const AppError_1 = require("../utils/AppError");
 const prisma_1 = require("../db/prisma");
+const env_config_1 = require("../config/env.config");
 exports.authenticate = (0, asyncHandler_1.asyncHandler)(async (req, _res, next) => {
     const token = req.cookies?.token;
     if (typeof token !== "string" || !token) {
         throw new AppError_1.AppError("Authentication required. Please log in.", 401);
     }
-    const secret = process.env.JWT_SECRET;
+    const secret = env_config_1.env.JWT_SECRET;
     if (!secret) {
         throw new Error("JWT_SECRET is not configured");
     }

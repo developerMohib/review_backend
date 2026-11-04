@@ -9,6 +9,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const prisma_js_1 = require("../../db/prisma.js");
 const AppError_js_1 = require("../../utils/AppError.js");
+const env_config_js_1 = require("../../config/env.config.js");
 const getCurrentUserService = async (userId) => {
     const user = await prisma_js_1.prisma.user.findUnique({
         where: {
@@ -61,7 +62,7 @@ const loginService = async (email, password) => {
     if (!user.isActive) {
         throw new AppError_js_1.AppError("Your account is inactive. Please contact support.", 403);
     }
-    const secret = process.env.JWT_SECRET;
+    const secret = env_config_js_1.env.JWT_SECRET;
     if (!secret) {
         throw new AppError_js_1.AppError("JWT_SECRET is not configured", 500);
     }
