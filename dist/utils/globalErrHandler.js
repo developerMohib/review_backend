@@ -9,7 +9,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // import { Prisma } from "../db/generated/prisma/client.js";
 const AppError_js_1 = require("./AppError.js");
 const index_js_1 = require("../../generated/prisma/index.js");
-const isProduction = process.env.NODE_ENV === "production";
+const env_config_js_1 = require("../config/env.config.js");
+const isProduction = env_config_js_1.env.NODE_ENV === "production";
 const globalErrHandler = (error, req, res, _next) => {
     // 1. Zod validation
     if (error instanceof zod_1.ZodError) {

@@ -11,41 +11,19 @@ import { userRoutes } from "./module/students/user.route.js";
 import { globalErrHandler } from "./utils/globalErrHandler.js";
 import { authRoutes } from "./module/auth/auth.routes.js";
 import { submissionRoutes } from "./module/submission/submission.route.js";
+import { env } from "./config/env.config.js";
+import { corsMiddleware } from "./middlewares/corsmiddleware.js";
 
 const app: Application = express();
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = env.NODE_ENV === "production";
 
-const allowedOrigins = new Set(
-  (process.env.CLIENT_URL ?? "")
-    .split(",")
-    .map((origin) => origin.trim().replace(/\/$/, ""))
-    .filter(Boolean),
-);
 
 app.use(helmet());
 app.use(morgan(isProduction ? "combined" : "dev"));
 app.use(compression());
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.has(origin)) {
-        return callback(null, true);
-      }
-
-      if (!isProduction) {
-        return callback(null, true);
-      }
-
-      console.warn("CORS blocked origin:", origin);
-      return callback(null, false);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-  }),
-);
+app.use(corsMiddleware);
 
 // ---------- Rate limit (shudhu /api te) ----------
 const apiLimiter = rateLimit({

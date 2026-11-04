@@ -9,8 +9,9 @@ import {
 } from "./auth.services";
 import { asyncHandler } from "../../utils/asyncHandler";
 
-import type { AuthRequest } from "../../middlewares/auth.js";
+import type { AuthRequest } from "../../middlewares/authmiddleware.js";
 import { AppError } from "../../utils/AppError.js";
+import { env } from "../../config/env.config";
 
 export const getCurrentUserController = asyncHandler(
   async (req: AuthRequest, res: Response): Promise<void> => {
@@ -54,8 +55,8 @@ export const loginController = asyncHandler(
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: env.NODE_ENV === "production",
+      sameSite: env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       path : '/'
     });
@@ -73,8 +74,8 @@ export const logoutUser = asyncHandler(
   async (_req: Request, res: Response): Promise<void> => {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      secure: env.NODE_ENV === "production",
+      sameSite: env.NODE_ENV === "production" ? "none" : "strict",
       path: "/",
     });
 

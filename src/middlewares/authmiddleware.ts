@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { AppError } from "../utils/AppError";
 import { prisma } from "../db/prisma";
 import { Role } from "../../generated/prisma";
+import { env } from "../config/env.config";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -20,7 +21,7 @@ export const authenticate = asyncHandler(
       throw new AppError("Authentication required. Please log in.", 401);
     }
 
-    const secret = process.env.JWT_SECRET;
+    const secret = env.JWT_SECRET;
 
     if (!secret) {
       throw new Error("JWT_SECRET is not configured");
