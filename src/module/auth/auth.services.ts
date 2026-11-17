@@ -35,8 +35,6 @@ export const getCurrentUserService = async (userId: string) => {
   return user;
 };
 
-
-
 export const registerService = async (input: RegisterInput) => {
   const hashedPassword = await bcrypt.hash(input.password, 10);
 
@@ -61,7 +59,7 @@ export const registerService = async (input: RegisterInput) => {
 };
 
 export const loginService = async (email: string, password: string) => {
- const user = await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { email: email.toLowerCase().trim() },
   });
 
@@ -70,17 +68,33 @@ export const loginService = async (email: string, password: string) => {
   }
 
   if (!user.isActive) {
-    throw new AppError("Your account is inactive. Please contact support.", 403);
+    throw new AppError(
+      "Your account is inactive. Please contact support.",
+      403,
+    );
   }
 
-  const secret =env.JWT_SECRET;
+  const secret = env.JWT_SECRET;
   if (!secret) {
     throw new AppError("JWT_SECRET is not configured", 500);
   }
 
-  const token = jwt.sign({ id: user.id, role: user.role }, secret, {
-    expiresIn: "7d",
-  });
+  const token = jwt.sign(
+    {
+      id: user.id,
+      role: user.role,
+      name: user.name,
+      email: user.email,
+      isActive: user.isActive,
+      phone: user.phone,
+      avatar: user.avatar,
+      bio: user.bio,
+    },
+    secret,
+    {
+      expiresIn: "7d",
+    },
+  );
 
   const { password: _password, ...userWithoutPassword } = user;
 
