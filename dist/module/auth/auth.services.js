@@ -66,7 +66,16 @@ const loginService = async (email, password) => {
     if (!secret) {
         throw new AppError_js_1.AppError("JWT_SECRET is not configured", 500);
     }
-    const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, secret, {
+    const token = jsonwebtoken_1.default.sign({
+        id: user.id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+        isActive: user.isActive,
+        phone: user.phone,
+        avatar: user.avatar,
+        bio: user.bio,
+    }, secret, {
         expiresIn: "7d",
     });
     const { password: _password, ...userWithoutPassword } = user;

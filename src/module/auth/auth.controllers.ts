@@ -34,7 +34,8 @@ export const getCurrentUserController = asyncHandler(
 
 export const registerController = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const validatedInput = registerUserSchema.parse(req.body);
+    const { name, email, password } = req.body;
+    const validatedInput = registerUserSchema.parse({ name, email, password });
 
     const newStudent = await registerService(validatedInput);
 
@@ -45,6 +46,7 @@ export const registerController = asyncHandler(
     });
   },
 );
+
 export const loginController = asyncHandler(
   async (req: Request, res: Response) => {
     const validatedData = loginSchema.parse(req.body);
@@ -58,14 +60,14 @@ export const loginController = asyncHandler(
       secure: env.NODE_ENV === "production",
       sameSite: env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path : '/'
+      path: "/",
     });
 
     // ৪. Success Response
     res.status(200).json({
       success: true,
       message: "Login successful",
-      data: { user, token },
+      data:{token},
     });
   },
 );
