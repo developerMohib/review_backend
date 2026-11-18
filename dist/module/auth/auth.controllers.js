@@ -20,7 +20,8 @@ exports.getCurrentUserController = (0, asyncHandler_1.asyncHandler)(async (req, 
     });
 });
 exports.registerController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
-    const validatedInput = auth_validators_1.registerUserSchema.parse(req.body);
+    const { name, email, password } = req.body;
+    const validatedInput = auth_validators_1.registerUserSchema.parse({ name, email, password });
     const newStudent = await (0, auth_services_1.registerService)(validatedInput);
     res.status(201).json({
         success: true,
@@ -36,13 +37,13 @@ exports.loginController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
         secure: env_config_1.env.NODE_ENV === "production",
         sameSite: env_config_1.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/'
+        path: "/",
     });
     // ৪. Success Response
     res.status(200).json({
         success: true,
         message: "Login successful",
-        data: { user, token },
+        data: { token },
     });
 });
 exports.logoutUser = (0, asyncHandler_1.asyncHandler)(async (_req, res) => {
