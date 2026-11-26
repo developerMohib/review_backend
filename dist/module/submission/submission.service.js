@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateSubmissionStatusService = exports.getAllSubmissionsService = exports.getMySubmissionsService = exports.createSubmissionService = void 0;
+exports.updateSubmissionStatusService = exports.getSubmissionByIdService = exports.getAllSubmissionsService = exports.getMySubmissionsService = exports.createSubmissionService = void 0;
 const prisma_1 = require("../../../generated/prisma");
 const prisma_2 = require("../../db/prisma");
 const AppError_1 = require("../../utils/AppError");
@@ -134,6 +134,44 @@ const getAllSubmissionsService = async (page, limit, status) => {
     }
 };
 exports.getAllSubmissionsService = getAllSubmissionsService;
+const getSubmissionByIdService = async (submissionId) => {
+    const submission = await prisma_2.prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+            reviewedBy: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+            feedbacks: {
+                orderBy: { createdAt: "desc" },
+                include: {
+                    mentor: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+    if (!submission) {
+        throw new AppError_1.AppError("Submission not found", 404);
+    }
+    return submission;
+};
+exports.getSubmissionByIdService = getSubmissionByIdService;
 const updateSubmissionStatusService = async (submissionId, mentorId, status, comment // নতুন প্যারামিটার যুক্ত করা হলো
 ) => {
     const existingSubmission = await prisma_2.prisma.submission.findUnique({
@@ -147,7 +185,11 @@ const updateSubmissionStatusService = async (submissionId, mentorId, status, com
     }
     const updatedSubmission = await prisma_2.prisma.submission.update({
         where: { id: submissionId },
-        data: { status },
+        data: {
+            status,
+            reviewedById: mentorId,
+            reviewedAt: new Date(),
+        },
         include: {
             user: {
                 select: { id: true, name: true, email: true },
