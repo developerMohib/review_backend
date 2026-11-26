@@ -1,24 +1,21 @@
 import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler";
-import { createSubmissionService, getAllSubmissionsService, getMySubmissionsService, updateSubmissionStatusService } from "./submission.service";
+import {
+  createSubmissionService,
+  getAllSubmissionsService,
+  getMySubmissionsService,
+  getSubmissionByIdService,
+  updateSubmissionStatusService,
+} from "./submission.service";
 import { createSubmissionSchema } from "./submission.validation";
 import { AuthRequest } from "../../middlewares/authmiddleware";
 import { SubmissionStatus } from "../../../generated/prisma";
 
-type UpdatableStatus = Extract<
-  SubmissionStatus,
-  "approved" | "rejected"
->;
+type UpdatableStatus = Extract<SubmissionStatus, "approved" | "rejected">;
 
-
-const isUpdatableStatus = (
-  status: unknown
-): status is UpdatableStatus => {
-  return (
-    status === "approved" || status === "rejected"
-  );
+const isUpdatableStatus = (status: unknown): status is UpdatableStatus => {
+  return status === "approved" || status === "rejected";
 };
-
 
 export const createSubmissionController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -28,7 +25,7 @@ export const createSubmissionController = asyncHandler(
         success: false,
         message: "Unauthorized: User ID not found in request",
       });
-      return
+      return;
     }
     const input = createSubmissionSchema.parse(req.body);
 
@@ -39,7 +36,7 @@ export const createSubmissionController = asyncHandler(
       message: "Project submitted successfully and is pending review.",
       data: submission,
     });
-    return
+    return;
   },
 );
 
@@ -59,12 +56,7 @@ export const getMySubmissionsController = asyncHandler(
     const limit = parseInt(req.query.limit as string) || 10;
     const status = req.query.status as string | undefined;
 
-    const result = await getMySubmissionsService(
-      userId,
-      page,
-      limit,
-      status
-    );
+    const result = await getMySubmissionsService(userId, page, limit, status);
 
     res.status(200).json({
       success: true,
@@ -72,7 +64,7 @@ export const getMySubmissionsController = asyncHandler(
       data: result,
     });
     return;
-  }
+  },
 );
 
 export const getAllSubmissionsController = asyncHandler(
@@ -90,7 +82,7 @@ export const getAllSubmissionsController = asyncHandler(
     // Query parameters from frontend (with defaults)
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
-    const status = req.query.status as string | undefined; 
+    const status = req.query.status as string | undefined;
 
     const result = await getAllSubmissionsService(page, limit, status);
 
@@ -99,7 +91,28 @@ export const getAllSubmissionsController = asyncHandler(
       message: "Submissions fetched successfully",
       data: result,
     });
-  }
+  },
+);
+
+export const getSubmissionByIdController = asyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const submissionId = req.params.id;
+
+    if (!submissionId) {
+      res
+        .status(400)
+        .json({ success: false, message: "Submission ID is required" });
+      return;
+    }
+
+    const submission = await getSubmissionByIdService(submissionId);
+
+    res.status(200).json({
+      success: true,
+      message: "Submission fetched successfully",
+      data: submission,
+    });
+  },
 );
 
 // controllers/submission.controller.ts
@@ -108,29 +121,40 @@ export const updateSubmissionStatusController = asyncHandler(
   async (req: AuthRequest, res: Response) => {
     const mentorId = req.user?.id;
     const submissionId = req.params.id;
-    const { status, comment } = req.body as { 
-      status?: SubmissionStatus; 
-      comment?: string; 
+    const { status, comment } = req.body as {
+      status?: SubmissionStatus;
+      comment?: string;
     };
 
     if (!mentorId) {
-      res.status(401).json({ success: false, message: "Unauthorized: Mentor ID not found" });
+      res
+        .status(401)
+        .json({ success: false, message: "Unauthorized: Mentor ID not found" });
       return;
     }
 
     if (!submissionId) {
-      res.status(400).json({ success: false, message: "Submission ID is required" });
+      res
+        .status(400)
+        .json({ success: false, message: "Submission ID is required" });
       return;
     }
 
     if (!isUpdatableStatus(status)) {
-      res.status(400).json({ success: false, message: "Status must be either approved or rejected" });
+      res
+        .status(400)
+        .json({
+          success: false,
+          message: "Status must be either approved or rejected",
+        });
       return;
     }
 
     // Comment validation (খালি কমেন্ট চেক করা হচ্ছে)
     if (!comment || comment.trim().length === 0) {
-      res.status(400).json({ success: false, message: "Feedback comment is required" });
+      res
+        .status(400)
+        .json({ success: false, message: "Feedback comment is required" });
       return;
     }
 
@@ -138,7 +162,7 @@ export const updateSubmissionStatusController = asyncHandler(
       submissionId,
       mentorId,
       status!,
-      comment.trim()
+      comment.trim(),
     );
 
     res.status(200).json({
@@ -146,5 +170,5 @@ export const updateSubmissionStatusController = asyncHandler(
       message: `Submission ${status} successfully`,
       data: updatedSubmission,
     });
-  }
+  },
 );
