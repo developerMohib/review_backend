@@ -149,6 +149,45 @@ export const getAllSubmissionsService = async (page: number, limit: number, stat
   }
 };
 
+export const getSubmissionByIdService = async (submissionId: string) => {
+  const submission = await prisma.submission.findUnique({
+    where: { id: submissionId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      reviewedBy: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      feedbacks: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          mentor: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!submission) {
+    throw new AppError("Submission not found", 404);
+  }
+
+  return submission;
+};
 
 export const updateSubmissionStatusService = async (
   submissionId: string,
@@ -170,7 +209,11 @@ export const updateSubmissionStatusService = async (
 
   const updatedSubmission = await prisma.submission.update({
     where: { id: submissionId },
-    data: { status },
+    data: {
+      status,
+      reviewedById: mentorId,
+      reviewedAt: new Date(),
+    },
     include: {
       user: {
         select: { id: true, name: true, email: true },

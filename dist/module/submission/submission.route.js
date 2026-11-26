@@ -8,7 +8,7 @@ const router = (0, express_1.Router)();
 router.post("/", authmiddleware_1.authenticate, submission_controller_1.createSubmissionController);
 router.get("/my", authmiddleware_1.authenticate, submission_controller_1.getMySubmissionsController);
 router.get("/all", authmiddleware_1.authenticate, submission_controller_1.getAllSubmissionsController);
-// router.get("/:id", getUserByIdController);
+router.get("/:id", authmiddleware_1.authenticate, submission_controller_1.getSubmissionByIdController);
 router.patch("/update/:id", authmiddleware_1.authenticate, submission_controller_1.updateSubmissionStatusController);
 exports.submissionRoutes = router;
 //# sourceMappingURL=submission.route.js.map

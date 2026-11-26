@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateSubmissionStatusController = exports.getAllSubmissionsController = exports.getMySubmissionsController = exports.createSubmissionController = void 0;
+exports.updateSubmissionStatusController = exports.getSubmissionByIdController = exports.getAllSubmissionsController = exports.getMySubmissionsController = exports.createSubmissionController = void 0;
 const asyncHandler_1 = require("../../utils/asyncHandler");
 const submission_service_1 = require("./submission.service");
 const submission_validation_1 = require("./submission.validation");
 const isUpdatableStatus = (status) => {
-    return (status === "approved" || status === "rejected");
+    return status === "approved" || status === "rejected";
 };
 exports.createSubmissionController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const userId = req.user?.id || req.auth?.userId;
@@ -65,26 +65,52 @@ exports.getAllSubmissionsController = (0, asyncHandler_1.asyncHandler)(async (re
         data: result,
     });
 });
+exports.getSubmissionByIdController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
+    const submissionId = req.params.id;
+    if (!submissionId) {
+        res
+            .status(400)
+            .json({ success: false, message: "Submission ID is required" });
+        return;
+    }
+    const submission = await (0, submission_service_1.getSubmissionByIdService)(submissionId);
+    res.status(200).json({
+        success: true,
+        message: "Submission fetched successfully",
+        data: submission,
+    });
+});
 // controllers/submission.controller.ts
 exports.updateSubmissionStatusController = (0, asyncHandler_1.asyncHandler)(async (req, res) => {
     const mentorId = req.user?.id;
     const submissionId = req.params.id;
     const { status, comment } = req.body;
     if (!mentorId) {
-        res.status(401).json({ success: false, message: "Unauthorized: Mentor ID not found" });
+        res
+            .status(401)
+            .json({ success: false, message: "Unauthorized: Mentor ID not found" });
         return;
     }
     if (!submissionId) {
-        res.status(400).json({ success: false, message: "Submission ID is required" });
+        res
+            .status(400)
+            .json({ success: false, message: "Submission ID is required" });
         return;
     }
     if (!isUpdatableStatus(status)) {
-        res.status(400).json({ success: false, message: "Status must be either approved or rejected" });
+        res
+            .status(400)
+            .json({
+            success: false,
+            message: "Status must be either approved or rejected",
+        });
         return;
     }
     // Comment validation (খালি কমেন্ট চেক করা হচ্ছে)
     if (!comment || comment.trim().length === 0) {
-        res.status(400).json({ success: false, message: "Feedback comment is required" });
+        res
+            .status(400)
+            .json({ success: false, message: "Feedback comment is required" });
         return;
     }
     const updatedSubmission = await (0, submission_service_1.updateSubmissionStatusService)(submissionId, mentorId, status, comment.trim());
